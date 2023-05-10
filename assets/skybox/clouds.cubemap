@@ -1,0 +1,6 @@
+right: "/assets/skybox/clouds/right.png"
+left: "/assets/skybox/clouds/left.png"
+top: "/assets/skybox/clouds/top.png"
+bottom: "/assets/skybox/clouds/bottom.png"
+front: "/assets/skybox/clouds/front.png"
+back: "/assets/skybox/clouds/back.png"

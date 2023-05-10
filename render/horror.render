@@ -1,0 +1,17 @@
+script: "/render/horror.render_script"
+materials {
+  name: "quad"
+  material: "/render/postprocess.material"
+}
+materials {
+  name: "shadow"
+  material: "/render/shadow.material"
+}
+materials {
+  name: "white"
+  material: "/render/white.material"
+}
+materials {
+  name: "illumination"
+  material: "/illumination/materials/model.material"
+}

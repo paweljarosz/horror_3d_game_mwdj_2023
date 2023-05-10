@@ -1,0 +1,265 @@
+name: "forest"
+instances {
+  id: "illumination"
+  prototype: "/illumination/illumination.go"
+  position {
+    x: 0.0
+    y: 5.25
+    z: 0.0
+  }
+  rotation {
+    x: -0.35355338
+    y: -0.35355338
+    z: -0.14644662
+    w: 0.8535534
+  }
+  component_properties {
+    id: "illumination"
+    properties {
+      id: "fog_distance_min"
+      value: "1.0"
+      type: PROPERTY_TYPE_NUMBER
+    }
+    properties {
+      id: "fog_distance_max"
+      value: "20.0"
+      type: PROPERTY_TYPE_NUMBER
+    }
+    properties {
+      id: "fog_color"
+      value: "0.05, 0.05, 0.1"
+      type: PROPERTY_TYPE_VECTOR3
+    }
+    properties {
+      id: "fog_level"
+      value: "0.7"
+      type: PROPERTY_TYPE_NUMBER
+    }
+  }
+  scale3 {
+    x: 1.0
+    y: 1.0
+    z: 1.0
+  }
+}
+scale_along_z: 0
+embedded_instances {
+  id: "entities"
+  children: "illumination"
+  data: ""
+  position {
+    x: 0.0
+    y: 0.0
+    z: 0.0
+  }
+  rotation {
+    x: 0.0
+    y: 0.0
+    z: 0.0
+    w: 1.0
+  }
+  scale3 {
+    x: 1.0
+    y: 1.0
+    z: 1.0
+  }
+}
+embedded_instances {
+  id: "world"
+  data: "components {\n"
+  "  id: \"scene\"\n"
+  "  component: \"/example/scene.script\"\n"
+  "  position {\n"
+  "    x: 0.0\n"
+  "    y: 0.0\n"
+  "    z: 0.0\n"
+  "  }\n"
+  "  rotation {\n"
+  "    x: 0.0\n"
+  "    y: 0.0\n"
+  "    z: 0.0\n"
+  "    w: 1.0\n"
+  "  }\n"
+  "  property_decls {\n"
+  "  }\n"
+  "}\n"
+  "embedded_components {\n"
+  "  id: \"tree1\"\n"
+  "  type: \"factory\"\n"
+  "  data: \"prototype: \\\"/example/objects/tree1.go\\\"\\n"
+  "load_dynamically: false\\n"
+  "dynamic_prototype: false\\n"
+  "\"\n"
+  "  position {\n"
+  "    x: 0.0\n"
+  "    y: 0.0\n"
+  "    z: 0.0\n"
+  "  }\n"
+  "  rotation {\n"
+  "    x: 0.0\n"
+  "    y: 0.0\n"
+  "    z: 0.0\n"
+  "    w: 1.0\n"
+  "  }\n"
+  "}\n"
+  "embedded_components {\n"
+  "  id: \"tree2\"\n"
+  "  type: \"factory\"\n"
+  "  data: \"prototype: \\\"/example/objects/tree2.go\\\"\\n"
+  "load_dynamically: false\\n"
+  "dynamic_prototype: false\\n"
+  "\"\n"
+  "  position {\n"
+  "    x: 0.0\n"
+  "    y: 0.0\n"
+  "    z: 0.0\n"
+  "  }\n"
+  "  rotation {\n"
+  "    x: 0.0\n"
+  "    y: 0.0\n"
+  "    z: 0.0\n"
+  "    w: 1.0\n"
+  "  }\n"
+  "}\n"
+  "embedded_components {\n"
+  "  id: \"zombie\"\n"
+  "  type: \"factory\"\n"
+  "  data: \"prototype: \\\"/example/objects/alien.go\\\"\\n"
+  "load_dynamically: false\\n"
+  "dynamic_prototype: false\\n"
+  "\"\n"
+  "  position {\n"
+  "    x: 0.0\n"
+  "    y: 0.0\n"
+  "    z: 0.0\n"
+  "  }\n"
+  "  rotation {\n"
+  "    x: 0.0\n"
+  "    y: 0.0\n"
+  "    z: 0.0\n"
+  "    w: 1.0\n"
+  "  }\n"
+  "}\n"
+  "embedded_components {\n"
+  "  id: \"collisionobject\"\n"
+  "  type: \"collisionobject\"\n"
+  "  data: \"collision_shape: \\\"\\\"\\n"
+  "type: COLLISION_OBJECT_TYPE_STATIC\\n"
+  "mass: 0.0\\n"
+  "friction: 0.1\\n"
+  "restitution: 0.5\\n"
+  "group: \\\"default\\\"\\n"
+  "mask: \\\"walker\\\"\\n"
+  "embedded_collision_shape {\\n"
+  "  shapes {\\n"
+  "    shape_type: TYPE_BOX\\n"
+  "    position {\\n"
+  "      x: 0.0\\n"
+  "      y: -0.1\\n"
+  "      z: 0.0\\n"
+  "    }\\n"
+  "    rotation {\\n"
+  "      x: 0.0\\n"
+  "      y: 0.0\\n"
+  "      z: 0.0\\n"
+  "      w: 1.0\\n"
+  "    }\\n"
+  "    index: 0\\n"
+  "    count: 3\\n"
+  "  }\\n"
+  "  data: 50.0\\n"
+  "  data: 0.1\\n"
+  "  data: 50.0\\n"
+  "}\\n"
+  "linear_damping: 0.0\\n"
+  "angular_damping: 0.0\\n"
+  "locked_rotation: false\\n"
+  "bullet: false\\n"
+  "\"\n"
+  "  position {\n"
+  "    x: 0.0\n"
+  "    y: 0.0\n"
+  "    z: 0.0\n"
+  "  }\n"
+  "  rotation {\n"
+  "    x: 0.0\n"
+  "    y: 0.0\n"
+  "    z: 0.0\n"
+  "    w: 1.0\n"
+  "  }\n"
+  "}\n"
+  "embedded_components {\n"
+  "  id: \"tree3\"\n"
+  "  type: \"factory\"\n"
+  "  data: \"prototype: \\\"/example/objects/tree3.go\\\"\\n"
+  "load_dynamically: false\\n"
+  "dynamic_prototype: false\\n"
+  "\"\n"
+  "  position {\n"
+  "    x: 0.0\n"
+  "    y: 0.0\n"
+  "    z: 0.0\n"
+  "  }\n"
+  "  rotation {\n"
+  "    x: 0.0\n"
+  "    y: 0.0\n"
+  "    z: 0.0\n"
+  "    w: 1.0\n"
+  "  }\n"
+  "}\n"
+  "embedded_components {\n"
+  "  id: \"grass\"\n"
+  "  type: \"factory\"\n"
+  "  data: \"prototype: \\\"/example/objects/grass.go\\\"\\n"
+  "load_dynamically: false\\n"
+  "dynamic_prototype: false\\n"
+  "\"\n"
+  "  position {\n"
+  "    x: 0.0\n"
+  "    y: 0.0\n"
+  "    z: 0.0\n"
+  "  }\n"
+  "  rotation {\n"
+  "    x: 0.0\n"
+  "    y: 0.0\n"
+  "    z: 0.0\n"
+  "    w: 1.0\n"
+  "  }\n"
+  "}\n"
+  "embedded_components {\n"
+  "  id: \"tree4\"\n"
+  "  type: \"factory\"\n"
+  "  data: \"prototype: \\\"/example/objects/tree4.go\\\"\\n"
+  "load_dynamically: false\\n"
+  "dynamic_prototype: false\\n"
+  "\"\n"
+  "  position {\n"
+  "    x: 0.0\n"
+  "    y: 0.0\n"
+  "    z: 0.0\n"
+  "  }\n"
+  "  rotation {\n"
+  "    x: 0.0\n"
+  "    y: 0.0\n"
+  "    z: 0.0\n"
+  "    w: 1.0\n"
+  "  }\n"
+  "}\n"
+  ""
+  position {
+    x: 0.0
+    y: 0.0
+    z: 0.0
+  }
+  rotation {
+    x: 0.0
+    y: 0.0
+    z: 0.0
+    w: 1.0
+  }
+  scale3 {
+    x: 1.0
+    y: 1.0
+    z: 1.0
+  }
+}
