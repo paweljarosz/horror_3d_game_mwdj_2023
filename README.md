@@ -10,5 +10,4 @@ Example game made for [Made With Defold Jam 2023](https://itch.io/jam/madewithde
 - [Textures](https://3dtextures.me) by Joao Paulo
 - [Enemy model](https://www.cgtrader.com/free-3d-models/character/fantasy-character/low-poly-zombie)
 - [Trees](https://www.cgtrader.com/free-3d-models/plant/leaf/free-3-dead-trees-sample-models)
-- Tiny Texture Pack [1](https://screamingbrainstudios.itch.io/tiny-texture-pack)-[2](https://screamingbrainstudios.itch.io/tiny-texture-pack-2) by [Screaming Brain Studios](https://screamingbrainstudios.itch.io/).
-- Specular and normal maps generated with [Normal Map Online](https://cpetry.github.io/NormalMap-Online/) by [@cpetry](https://github.com/cpetry).
+- [Trees](https://www.cgtrader.com/free-3d-models/plant/other/realistic-trees-pack-of-2)
