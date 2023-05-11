@@ -13,6 +13,36 @@ components {
     w: 1.0
   }
 }
+components {
+  id: "light"
+  component: "/illumination/light.script"
+  position {
+    x: 0.0
+    y: 0.0
+    z: 0.0
+  }
+  rotation {
+    x: 0.0
+    y: 0.0
+    z: 0.0
+    w: 1.0
+  }
+}
+components {
+  id: "mesh"
+  component: "/illumination/assets/models/light_spot.mesh"
+  position {
+    x: 0.0
+    y: 4.0
+    z: 0.0
+  }
+  rotation {
+    x: 0.0
+    y: 0.0
+    z: 0.0
+    w: 1.0
+  }
+}
 embedded_components {
   id: "collisionobject"
   type: "collisionobject"
@@ -21,8 +51,8 @@ embedded_components {
   "mass: 0.0\n"
   "friction: 0.1\n"
   "restitution: 0.5\n"
-  "group: \"default\"\n"
-  "mask: \"walker\"\n"
+  "group: \"zombie\"\n"
+  "mask: \"fov\"\n"
   "embedded_collision_shape {\n"
   "  shapes {\n"
   "    shape_type: TYPE_BOX\n"
@@ -42,7 +72,7 @@ embedded_components {
   "  }\n"
   "  data: 1.5\n"
   "  data: 2.0\n"
-  "  data: 1.0\n"
+  "  data: 1.5\n"
   "}\n"
   "linear_damping: 0.0\n"
   "angular_damping: 0.0\n"

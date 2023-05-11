@@ -16,11 +16,11 @@ local CHROMATIC_STRENGTH = 0.12
 
 local VIG_STRENGTH = 0.4
 local VIG_INTENSITY = 0.37
-local NOISE_STRENGTH = 0.08
-local DIST_STRENGTH = 0.05
+local NOISE_STRENGTH = 0.06
+local DIST_STRENGTH = 0.1
 
-local SCAN_STRENGTH = 0.08
-local CRT_CURVE = 0.3
+local SCAN_STRENGTH = 0.11
+local CRT_CURVE = 0.8
 
 local enable_effects1 = vmath.vector4(BLOOM,CHROMATIC,VIGNETTE,NOISE)
 local enable_effects2 = vmath.vector4(VHS,SCANLINES,CRT,TIME)
@@ -29,96 +29,32 @@ local effects1 = vmath.vector4(BLOOM_RADIUS,BLOOM_INTENSITY,BLOOM_THRESHOLD,CHRO
 local effects2 = vmath.vector4(VIG_STRENGTH,VIG_INTENSITY,NOISE_STRENGTH,DIST_STRENGTH)
 local effects3 = vmath.vector4(SCAN_STRENGTH,CRT_CURVE,0,0)
 
+local pigeon = require "pigeon.pigeon"
+local msg_zombie_pov = hash("zombie_fov")
+local noise_power_ratio = 0.02
+
 function init(self)
 	go.set("#quad", "enable_effects1", enable_effects1)
 	go.set("#quad", "enable_effects2", enable_effects2)
 	go.set("#quad", "effects1", effects1)
 	go.set("#quad", "effects2", effects2)
 	go.set("#quad", "effects3", effects3)
+	pigeon.subscribe(msg_zombie_pov)
+end
+
+function on_message(self, message_id, message, sender)
+	if message_id == msg_zombie_pov then
+		if message.enter then
+			effects2.z = message.distance * noise_power_ratio
+		else
+			effects2.z = NOISE_STRENGTH
+		end
+		print("B", effects2.z)
+		go.set("#quad", "effects2", effects2)
+	end
 end
 
 function update(self, dt)
 	enable_effects2.w = enable_effects2.w + dt
-	--effects2.z = math.random(1,2) / 8
 	go.set("#quad", "enable_effects2", enable_effects2)
-	--go.set("#quad", "effects2", effects2)
 end
-
---[[
-
-// SSAO (Screen Space AO) - by moranzcw - 2021
-// Email: moranzcw@gmail.com
-// License Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported License.
-
-#define PI 3.14159265359
-#define AOradius 2.0
-#define Samples 64.0
-
-// --------------------------------------
-// oldschool rand() from Visual Studio
-// --------------------------------------
-int   seed = 1;
-void  srand(int s ) { seed = s; }
-int   rand(void)  { seed=seed*0x343fd+0x269ec3; return (seed>>16)&32767; }
-float frand(void) { return float(rand())/32767.0; }
-// --------------------------------------
-// hash by Hugo Elias
-// --------------------------------------
-int hash( int n ) { n=(n<<13)^n; return n*(n*n*15731+789221)+1376312589; }
-
-vec3 sphereVolumeRandPoint()
-{
-	vec3 p = vec3(frand(),frand(),frand()) * 2.0 - 1.0;
-	while(length(p)>1.0)
-	{
-		p = vec3(frand(),frand(),frand()) * 2.0 - 1.0;
-	}
-	return p;
-}
-
-float depth(vec2 coord)
-{
-	vec2 uv = coord*vec2(iResolution.y/iResolution.x,1.0);
-	return texture(iChannel0, uv).x;
-}
-
-float SSAO(vec2 coord)
-{
-	float cd = depth(coord);
-	float screenRadius = 0.5 * (AOradius / cd) / 0.53135;
-	float li = 0.0;
-	float count = 0.0;
-	for(float i=0.0; i<Samples; i++)
-	{
-		vec3 p = sphereVolumeRandPoint() * frand();
-		vec2 sp = vec2(coord.x + p.x * screenRadius, coord.y + p.y * screenRadius);
-		float d = depth(sp);
-		float at = pow(length(p)-1.0, 2.0);
-		li += step(cd + p.z * AOradius, d) * at;
-		count += at;
-	}
-	return li / count;
-}
-
-vec3 background(float yCoord) 
-{	    
-	return mix(vec3(0.1515, 0.2375, 0.5757), vec3(0.0546, 0.0898, 0.1953), yCoord);
-}
-
-void mainImage( out vec4 fragColor, in vec2 fragCoord ) 
-{
-	// init random seed
-	ivec2 q = ivec2(fragCoord);
-	srand( hash(q.x+hash(q.y+hash(1117*iFrame))));
-
-	// coordinate
-	vec2 uv = fragCoord/iResolution.xy;
-	vec2 coord = fragCoord/iResolution.y;
-
-	float d = depth(coord);
-	vec3 ao = vec3(0.4) + step(d, 1e5-1.0) * vec3(0.8);// * SSAO(coord);
-	vec3 color = mix(background(uv.y), ao, 1.0 - smoothstep(0.0, 0.99, d*d/1e3));;
-
-	color = pow(color,vec3(1.0/2.2)); // gamma
-	fragColor = vec4(color, 1.0);
-}]]

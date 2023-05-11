@@ -13,29 +13,6 @@ instances {
     z: -0.14644662
     w: 0.8535534
   }
-  component_properties {
-    id: "illumination"
-    properties {
-      id: "fog_distance_min"
-      value: "1.0"
-      type: PROPERTY_TYPE_NUMBER
-    }
-    properties {
-      id: "fog_distance_max"
-      value: "20.0"
-      type: PROPERTY_TYPE_NUMBER
-    }
-    properties {
-      id: "fog_color"
-      value: "0.05, 0.05, 0.1"
-      type: PROPERTY_TYPE_VECTOR3
-    }
-    properties {
-      id: "fog_level"
-      value: "0.7"
-      type: PROPERTY_TYPE_NUMBER
-    }
-  }
   scale3 {
     x: 1.0
     y: 1.0
@@ -192,6 +169,44 @@ embedded_instances {
   "  id: \"grass\"\n"
   "  type: \"factory\"\n"
   "  data: \"prototype: \\\"/assets/grass/grass.go\\\"\\n"
+  "load_dynamically: false\\n"
+  "dynamic_prototype: false\\n"
+  "\"\n"
+  "  position {\n"
+  "    x: 0.0\n"
+  "    y: 0.0\n"
+  "    z: 0.0\n"
+  "  }\n"
+  "  rotation {\n"
+  "    x: 0.0\n"
+  "    y: 0.0\n"
+  "    z: 0.0\n"
+  "    w: 1.0\n"
+  "  }\n"
+  "}\n"
+  "embedded_components {\n"
+  "  id: \"zombie_light\"\n"
+  "  type: \"factory\"\n"
+  "  data: \"prototype: \\\"/illumination/light_spot.go\\\"\\n"
+  "load_dynamically: false\\n"
+  "dynamic_prototype: false\\n"
+  "\"\n"
+  "  position {\n"
+  "    x: 0.0\n"
+  "    y: 0.0\n"
+  "    z: 0.0\n"
+  "  }\n"
+  "  rotation {\n"
+  "    x: 0.0\n"
+  "    y: 0.0\n"
+  "    z: 0.0\n"
+  "    w: 1.0\n"
+  "  }\n"
+  "}\n"
+  "embedded_components {\n"
+  "  id: \"tree3\"\n"
+  "  type: \"factory\"\n"
+  "  data: \"prototype: \\\"/assets/house/pine.go\\\"\\n"
   "load_dynamically: false\\n"
   "dynamic_prototype: false\\n"
   "\"\n"

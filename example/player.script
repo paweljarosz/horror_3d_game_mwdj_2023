@@ -1,6 +1,8 @@
 --
 -- Local
 
+local pigeon = require "pigeon.pigeon"
+
 local spectator_mode = false
 local is_flashlight_on = true
 
@@ -41,5 +43,19 @@ function on_input(self, action_id, action)
   elseif action_id == hash 'key_e' and action.released then
     is_flashlight_on = not is_flashlight_on
     go.set(urls.flashlight_script, 'brightness', is_flashlight_on and 1 or 0)
+  end
+end
+
+local function dist2d(x1, y1, x2, y2)
+  return ((x2-x1)^2+(y2-y1)^2)^0.5
+end
+
+function on_message(self, message_id, message, sender)
+  if message_id == hash("trigger_response") then
+    local pos = go.get_world_position()
+    local other_pos = go.get_world_position(message.other_id)
+    local dist = dist2d(pos.x, pos.z, other_pos.x, other_pos.z)
+    print("A", dist)
+    pigeon.send("zombie_fov", {distance = dist, enter = message.enter})
   end
 end

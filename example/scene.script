@@ -12,51 +12,24 @@ local daycycle = {
     sunlight_brightness = 1,
     ambient_color = vmath.vector3(1, 1, 1),
     ambient_level = 0.3,
-    fog_color = vmath.vector3(0.73, 0.8, 0.92),
+    fog_color = vmath.vector3(0),
+    fog_level = 0.1,
+    fog_distance_min = 8,
+    fog_distance_max = 10,
     duration = 0
   },
   {
     sunlight_direction = vmath.vector3(0, 20, 0),
-    sunlight_color = vmath.vector3(0.218, 0.261, 0.613),
-    sunlight_brightness = 0.1,
-    ambient_color = vmath.vector3(0.218, 0.261, 0.613),
-    ambient_level = 0.15,
-    fog_color = vmath.vector3(0, 0, 0.1),
+    sunlight_color = vmath.vector3(0.218, 0.261, 0.513),
+    sunlight_brightness = 0.05,
+    ambient_color = vmath.vector3(0.218, 0.261, 0.513),
+    ambient_level = 0.1,
+    fog_color = vmath.vector3(0),
+    fog_level = 0.3,
+    fog_distance_min = 8,
+    fog_distance_max = 10,
     duration = 0
   }
-}
-
-local spawn = {
-  {
-    factory = "#tree1", -- lowpoly, few branches
-    pos = {vmath.vector3(-1,0,0),   vmath.vector3(3,0,2)},
-    rot = {vmath.quat_rotation_y(0), vmath.quat_rotation_y(30)},
-    scale = {vmath.vector3(0.5), vmath.vector3(0.8)}
-  },
-  {
-    factory = "#tree2",  -- HD twisted tree
-    pos = {vmath.vector3(-6,0.05,1)},
-    rot = {vmath.quat_rotation_y(50)},
-    scale = {vmath.vector3(1.8)}
-  },
-  --[[{
-    factory = "#tree3",  -- lowpoly, lot of branches
-    pos = {vmath.vector3(-3,-0.4,3),   vmath.vector3(6,-0.2,4)},
-    rot = {vmath.quat_rotation_y(50), vmath.quat_rotation_y(0)},
-    scale = {vmath.vector3(0.6), vmath.vector3(0.7)}
-  },
-  {
-    factory = "#tree4",  -- lot of branches
-    pos = {vmath.vector3(3,-0.5,8),   vmath.vector3(-7,-0.1,3)},
-    rot = {vmath.quat_rotation_y(50), vmath.quat_rotation_y(0)},
-    scale = {vmath.vector3(0.6), vmath.vector3(0.7)}
-  },]]
-  {
-    factory = "#zombie",
-    pos = {vmath.vector3(-6,0,0)},
-    rot = {vmath.quat_rotation_y(0)},
-    scale = {vmath.vector3(1)}
-  }--]]
 }
 
 local function run_daycycle(self, index)
@@ -74,7 +47,10 @@ local function run_daycycle(self, index)
   go.animate(urls.illumination, 'sunlight_brightness', go.PLAYBACK_ONCE_FORWARD, target.sunlight_brightness, go.EASING_LINEAR, duration)
   go.animate(urls.illumination, 'ambient_color', go.PLAYBACK_ONCE_FORWARD, target.ambient_color, go.EASING_LINEAR, duration)
   go.animate(urls.illumination, 'ambient_level', go.PLAYBACK_ONCE_FORWARD, target.ambient_level, go.EASING_LINEAR, duration)
+  go.animate(urls.illumination, 'fog_level', go.PLAYBACK_ONCE_FORWARD, target.fog_level, go.EASING_LINEAR, duration)
   go.animate(urls.illumination, 'fog_color', go.PLAYBACK_ONCE_FORWARD, target.fog_color, go.EASING_LINEAR, duration)
+  go.animate(urls.illumination, 'fog_distance_min', go.PLAYBACK_ONCE_FORWARD, target.fog_distance_min, go.EASING_LINEAR, duration)
+  go.animate(urls.illumination, 'fog_distance_max', go.PLAYBACK_ONCE_FORWARD, target.fog_distance_max, go.EASING_LINEAR, duration)
 end
 
 -- Distance between two 2d points
@@ -87,56 +63,102 @@ local grass_space = 2
 local grass_fov = 12
 local remove_grass_fov = 16
 
-local function recreate_grass(self)
-  local hero_x = math.floor(self.pos.x)
-  local hero_z = math.floor(self.pos.z)
-  hero_x = hero_x - (hero_x % grass_space)
-  hero_z = hero_z - (hero_z % grass_space)
+local function get_normalized_hero_position()
+  local hero_pos = go.get_world_position("main:/player/player")
+  hero_pos.x = math.floor(hero_pos.x)
+  hero_pos.x = math.floor(hero_pos.z)
+  hero_pos.x = hero_pos.x - (hero_pos.x % grass_space)
+  hero_pos.z = hero_pos.z - (hero_pos.x % grass_space)
+  return hero_pos
+end
 
-  -- Remove far grass
-  for obj_x,z_column in pairs(self.spawned_grass) do
-    for obj_z, obj_id in pairs(z_column) do
-      if dist2d(hero_x, hero_z, obj_x, obj_z) > remove_grass_fov then
-        --print("Remove ", obj_id, "at", obj_x, obj_z)
-        go.delete(obj_id)
-        self.spawned_grass[obj_x][obj_z] = nil
-      end
-    end
-  end
+local function remove_far_grass_and_trees(spawned_objects, hero_pos)
+  for obj_x, z_column in pairs(spawned_objects) do
+    for obj_z, objects in pairs(z_column) do
+      if dist2d(hero_pos.x, hero_pos.z, obj_x, obj_z) > remove_grass_fov then
+        -- Remove far grass
+        go.delete(objects.grass)
 
-  -- Create near grass
-  for x = -grass_fov, grass_fov, grass_space do
-    for z = -grass_fov, grass_fov, grass_space do
-      local grid = vmath.vector3(hero_x + x, 0, hero_z + z)
-      local pos = vmath.vector3(hero_x + x, 0, hero_z + z)
-      self.spawned_grass[grid.x] = self.spawned_grass[grid.x] or {}
-      if not self.spawned_grass[grid.x][grid.z] then
-        --print("Create ", grid.x, grid.z, "at", pos.x, pos.z)
-        self.spawned_grass[grid.x][grid.z] = factory.create("#grass", pos, _, _, grass_scale)
+        -- Eventually remove trees
+        if objects.tree then go.delete(objects.tree) end
+        spawned_objects[obj_x][obj_z] = nil
       end
     end
   end
 end
+
+local tree_density = 3
+local tree_1_probability = 100 - tree_density
+local tree_2_probability = 100 - 2 * tree_density
+local tree_3_probability = 100 - 3 * tree_density
+
+local function create_near_grass_and_trees(spawned_objects, hero_pos)
+  for x = -grass_fov, grass_fov, grass_space do
+    for z = -grass_fov, grass_fov, grass_space do
+      local grid = vmath.vector3(hero_pos.x + x, 0, hero_pos.z + z)
+      local pos = vmath.vector3(hero_pos.x + x, 0, hero_pos.z + z)
+      spawned_objects[grid.x] = spawned_objects[grid.x] or {}
+      if not spawned_objects[grid.x][grid.z] then
+        -- Create near grass
+        spawned_objects[grid.x][grid.z] = { grass = factory.create("#grass", pos, _, _, grass_scale) }
+
+        -- Create near trees
+        local random_num = math.random(0,100)
+        local random_scale = vmath.vector3(1+(math.random(1,4)/10))
+        if random_num > tree_1_probability then
+          spawned_objects[grid.x][grid.z].tree = factory.create("#tree1", pos, _, _, random_scale)
+        elseif random_num > tree_2_probability then
+          spawned_objects[grid.x][grid.z].tree = factory.create("#tree2", pos, _, _, random_scale)
+        elseif random_num > tree_3_probability then
+          spawned_objects[grid.x][grid.z].tree = factory.create("#tree3", pos, _, _, random_scale/10)
+        end
+      end
+    end
+  end
+end
+
+local function recreate_world_around_player(spawned_objects)
+  local hero_pos = get_normalized_hero_position()
+
+  remove_far_grass_and_trees(spawned_objects, hero_pos)
+
+  create_near_grass_and_trees(spawned_objects, hero_pos)
+end
+
+local objects_to_spawn = {
+  {
+    factory = "#zombie",
+    pos = {vmath.vector3(-6,0,0)},
+    rot = {vmath.quat_rotation_y(-30)},
+    scale = {vmath.vector3(0.4)}
+  }--[[,
+  {
+    factory = "#zombie_light",
+    pos = {vmath.vector3(0,0,0)},
+    rot = {vmath.quat_rotation_y(0)},
+    scale = {vmath.vector3(1)},
+    prop = {{specular = 1, smoothness = 0.5, cutoff = 0.5, color = vmath.vector3(0,1,0)}}
+  }]]
+}
 
 --
 -- Lifecycle
 
 function init(self)
   self.spawned = {}
-  self.spawned_grass = {}
+  self.spawned_objects = {}
   self.pos = go.get_world_position("main:/player/player")
 
-  recreate_grass(self)
-  timer.delay(0.5, true, function()
-    self.pos = go.get_world_position("main:/player/player")
-    recreate_grass(self)
+  recreate_world_around_player(self.spawned_objects)
+  timer.delay(0.3, true, function()
+    recreate_world_around_player(self.spawned_objects)
   end)
 
 
   self.spawned = {}
-  for i,obj in ipairs(spawn) do
+  for i,obj in ipairs(objects_to_spawn) do
     for j,pos in ipairs(obj.pos) do
-      self.spawned[i] = factory.create(obj.factory, pos, obj.rot[j], _, obj.scale[j])
+      self.spawned[i] = factory.create(obj.factory, pos, obj.rot[j], obj.prop and obj.prop[j], obj.scale[j])
     end
   end
   urls = {
@@ -155,7 +177,7 @@ function init(self)
   go.animate(urls.spot_red, 'euler.z', go.PLAYBACK_LOOP_PINGPONG, -50, go.EASING_INOUTQUAD, 5, 0)
   go.animate(urls.spot_green, 'euler.y', go.PLAYBACK_LOOP_FORWARD, 360, go.EASING_LINEAR, 12, 0)
   go.animate(urls.spot_green, 'euler.z', go.PLAYBACK_LOOP_PINGPONG, -50, go.EASING_INOUTQUAD, 5, 0)
-  go.animate(urls.fireplace, 'brightness', go.PLAYBACK_LOOP_PINGPONG, 0.8, go.EASING_INOUTQUAD, 1, 0)  
+  go.animate(urls.fireplace, 'brightness', go.PLAYBACK_LOOP_PINGPONG, 0.8, go.EASING_INOUTQUAD, 1, 0)
   go.animate(urls.firefly, 'position', go.PLAYBACK_LOOP_PINGPONG, vmath.vector3(-6, 1, -4), go.EASING_INOUTQUAD, 25, 0)]]
 
   --illumination.set_debug(true)

@@ -12,10 +12,10 @@ local illumination = require 'illumination.illumination'
 
 go.property('color', vmath.vector3(1.0))
 go.property('brightness', 1.0)
-go.property('radius', 5.0)
-go.property('specular', 0.5)
-go.property('smoothness', 1.0)
-go.property('cutoff', 1.0)
+go.property('radius', 10.0)
+go.property('specular', 1)
+go.property('smoothness', 0.5)
+go.property('cutoff', 0.5)
 
 --
 -- Local
@@ -36,7 +36,7 @@ function update(self, dt)
   local color = self.color
 
   local light = {
-    position = go.get_world_position(),
+    position = go.get_world_position() + go.get_position("#mesh"),
     direction = vmath.rotate(go.get_world_rotation(), VECTOR_FORWARD),
     color = vmath.vector4(color.x, color.y, color.z, self.brightness),
     radius = self.radius,

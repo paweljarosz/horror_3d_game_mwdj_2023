@@ -1,6 +1,6 @@
 mesh: "/assets/zombie/zombie.glb"
-material: "/illumination/assets/materials/debug.material"
-textures: "/assets/zombie/zombie_diff.jpg"
+material: "/illumination/materials/model.material"
+textures: "/assets/zombie/zombie_spec.jpg"
 textures: "/illumination/textures/data.png"
 textures: "/illumination/textures/empty.png"
 textures: "/assets/zombie/zombie_spec.jpg"
