@@ -206,7 +206,7 @@ embedded_instances {
   "embedded_components {\n"
   "  id: \"tree3\"\n"
   "  type: \"factory\"\n"
-  "  data: \"prototype: \\\"/assets/house/pine.go\\\"\\n"
+  "  data: \"prototype: \\\"/assets/tree_3/tree_3.go\\\"\\n"
   "load_dynamically: false\\n"
   "dynamic_prototype: false\\n"
   "\"\n"
