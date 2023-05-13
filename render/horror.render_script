@@ -1,9 +1,15 @@
 local helper = require "render.render_helper"
+local light_and_shadows = require "light_and_shadows.light_and_shadows"
 
 local IDENTITY_MATRIX = vmath.matrix4()
 local quad_postprocessing_material = hash("quad")
 
 function init(self)
+	self.constants = render.constant_buffer()
+	self.shadow_pred = render.predicate({"shadow", "model"}) -- all objects that have to cast shadows
+	light_and_shadows.init(self)
+
+
 	self.clear_color = vmath.vector4(0,0,0,1)
 	self.clear_options = {
 		[render.BUFFER_COLOR_BIT] = self.clear_color,
@@ -45,9 +51,10 @@ function init(self)
 end
 
 function update(self)
+	light_and_shadows.update(self)
 	--update window dimensions
-	window_width = render.get_window_width()
-	window_height = render.get_window_height()
+	local window_width = render.get_window_width()
+	local window_height = render.get_window_height()
 
 	-- recreate render targets (in case of window change)
 	self.all_rt = helper.create_render_target("all")
@@ -74,6 +81,8 @@ function update(self)
 
 		render.disable_material(hash("illumination"))
 	end)
+
+	self.constants.frameBufSize = vmath.vector4(render.get_window_width(), render.get_window_width(), 1.0, 1.0)
 
 	-- postprocessing
 	helper.draw_to_quad_for_fullscreen_postprocessing(quad_postprocessing_material, function()

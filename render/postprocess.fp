@@ -1,6 +1,11 @@
 #define SAMPLES 32.
 
 varying mediump vec2 var_texcoord0;
+uniform lowp sampler2D tex0;
+
+//========================================================================================
+// Defold Horri-fold
+//========================================================================================
 
 uniform lowp vec4 enable_effects1;
 uniform lowp vec4 enable_effects2;
@@ -8,9 +13,6 @@ uniform lowp vec4 enable_effects2;
 uniform lowp vec4 effects1;
 uniform lowp vec4 effects2;
 uniform lowp vec4 effects3;
-
-uniform lowp sampler2D tex0;
-//uniform lowp vec4 tint;
 
 #define BLOOM enable_effects1.x
 #define CHROMATIC enable_effects1.y
@@ -95,85 +97,11 @@ vec4 blur(vec2 uv, vec2 texel)
     return amount*BLOOM_INTENSITY;
 }
 
-// -- SSAO
-
-// SSAO (Screen Space AO) - by moranzcw - 2021
-// Email: moranzcw@gmail.com
-// License Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported License.
-
-#define PI 3.14159265359
-#define AOradius 2.0
-#define Samples 64.0
-
-// --------------------------------------
-// oldschool rand() from Visual Studio
-// --------------------------------------
-int   seed = 1;
-void  srand(int s ) { seed = s; }
-int   rand(void)  { seed=seed*0x343fd+0x269ec3; return (seed>>16)&32767; }
-float frand(void) { return float(rand())/32767.0; }
-// --------------------------------------
-// hash by Hugo Elias
-// --------------------------------------
-int hash( int n ) { n=(n<<13)^n; return n*(n*n*15731+789221)+1376312589; }
-
-vec3 sphereVolumeRandPoint()
-{
-    vec3 p = vec3(frand(),frand(),frand()) * 2.0 - 1.0;
-    while(length(p)>1.0)
-    {
-        p = vec3(frand(),frand(),frand()) * 2.0 - 1.0;
-    }
-    return p;
-}
-
-float depth(sampler2D tex, vec2 coord)
-{
-    //vec2 uv = coord;//*vec2(iResolution.y/iResolution.x,1.0);
-    return texture2D(tex, coord).x;
-}
-
-float SSAO(sampler2D tex, vec2 coord)
-{
-    float cd = depth(tex, coord);
-    float screenRadius = 0.5 * (AOradius / cd) / 0.53135;
-    float li = 0.0;
-    float count = 0.0;
-    for(float i=0.0; i<Samples; i++)
-    {
-        vec3 p = sphereVolumeRandPoint() * frand();
-        vec2 sp = vec2(coord.x + p.x * screenRadius, coord.y + p.y * screenRadius);
-        float d = depth(tex, sp);
-        float at = pow(length(p)-1.0, 2.0);
-        li += step(cd + p.z * AOradius, d) * at;
-        count += at;
-    }
-    return li / count;
-}
-
-vec3 background(float yCoord) 
-{	    
-    return mix(vec3(0.1515, 0.2375, 0.5757), vec3(0.0546, 0.0898, 0.1953), yCoord);
-}
 
 void main()
 {
     vec2 uv = var_texcoord0;
     if (CRT > 0.5) uv = warp(uv);
-
-    /*/ init random seed
-    ivec2 q = ivec2(var_texcoord0);
-    srand( hash(q.x+hash(q.y+hash(1117*1))));
-
-    // coordinate
-    //vec2 uv = fragCoord/iResolution.xy;
-    //vec2 coord = fragCoord/iResolution.y;
-
-    float d = depth(tex0, uv);
-    vec3 ao = vec3(0.4) + step(d, 1e5-1.0) * vec3(0.8) * SSAO(tex0, var_texcoord0);
-    vec3 bg_color = mix(background(uv.y), ao, 1.0 - smoothstep(0.0, 0.99, d*d/1e3));;
-    bg_color = pow(bg_color,vec3(1.0/2.2)); // gamma
-    vec4 color = vec4(bg_color, 1.0);*/
 
     vec4 color = texture2D(tex0, uv);
 

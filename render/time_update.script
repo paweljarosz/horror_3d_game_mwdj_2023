@@ -4,23 +4,23 @@ local CHROMATIC = 1
 local VIGNETTE = 1
 local NOISE = 1
 
-local VHS = 1
-local SCANLINES = 1
+local VHS = 0
+local SCANLINES = 0
 local CRT = 1
 local TIME = 0
 
 local BLOOM_RADIUS = 26.56
 local BLOOM_INTENSITY = 1.3
 local BLOOM_THRESHOLD = 0.42
-local CHROMATIC_STRENGTH = 0.12
+local CHROMATIC_STRENGTH = 0.08
 
-local VIG_STRENGTH = 0.4
-local VIG_INTENSITY = 0.37
-local NOISE_STRENGTH = 0.06
+local VIG_STRENGTH = 0.5
+local VIG_INTENSITY = 0.57
+local NOISE_STRENGTH = 0.05
 local DIST_STRENGTH = 0.1
 
-local SCAN_STRENGTH = 0.11
-local CRT_CURVE = 0.8
+local SCAN_STRENGTH = 0.51
+local CRT_CURVE = 1.6
 
 local enable_effects1 = vmath.vector4(BLOOM,CHROMATIC,VIGNETTE,NOISE)
 local enable_effects2 = vmath.vector4(VHS,SCANLINES,CRT,TIME)
@@ -31,7 +31,8 @@ local effects3 = vmath.vector4(SCAN_STRENGTH,CRT_CURVE,0,0)
 
 local pigeon = require "pigeon.pigeon"
 local msg_zombie_pov = hash("zombie_fov")
-local noise_power_ratio = 0.02
+local noise_power_ratio = 1.03
+local chrom_power_ratio = 1.07
 
 function init(self)
 	go.set("#quad", "enable_effects1", enable_effects1)
@@ -45,12 +46,15 @@ end
 function on_message(self, message_id, message, sender)
 	if message_id == msg_zombie_pov then
 		if message.enter then
-			effects2.z = message.distance * noise_power_ratio
+			effects1.w = chrom_power_ratio / message.distance
+			effects2.z = noise_power_ratio / message.distance
 		else
 			effects2.z = NOISE_STRENGTH
+			effects1.w = CHROMATIC_STRENGTH
 		end
 		print("B", effects2.z)
 		go.set("#quad", "effects2", effects2)
+		go.set("#quad", "effects1", effects1)
 	end
 end
 

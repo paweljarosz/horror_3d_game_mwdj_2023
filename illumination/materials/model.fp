@@ -9,6 +9,7 @@
 #define light_pixels_count 5.0
 #define meta_pixels_count 5.0
 #define texture_size 32.0
+#define specular_strength 0.4
 
 const highp float axis_capacity = 2.0 * 2048.0;
 const highp float max_uint24 = 256.0 * 256.0 * 256.0 - 1.0;
@@ -111,7 +112,7 @@ vec3 get_specular_color(vec3 map_specular, float light_specular, vec3 light_colo
     vec3 reflection_direction = reflect(-light_direction, surface_normal);
     float specular_value = pow(max(dot(view_direction, reflection_direction), 0.0), surface_shininess);
 
-    return light_color * light_specular * specular_value;
+    return light_color * light_specular * specular_value * specular_strength;
 }
 
 void main() {

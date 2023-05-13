@@ -1,4 +1,7 @@
-local illumination = require 'illumination.illumination'
+--local illumination = require 'illumination.illumination'
+local pigeon = require "pigeon.pigeon"
+local msg_paper = hash("paper")
+local key_interact = hash('key_e') 
 
 --
 -- Lifecycle
@@ -6,18 +9,24 @@ local illumination = require 'illumination.illumination'
 function init(self)
   msg.post('.', hash 'acquire_input_focus')
   self.root_node = gui.get_node('box')
+  self.interact_node = gui.get_node('interact')
   self.is_enabled = true
   self.is_profiler_enabled = false
+  pigeon.subscribe(msg_paper)
+
+  self.interaction = false
+  gui.set_enabled(self.interact_node, self.interaction)
 end
 
 function on_input(self, action_id, action)
-  if action_id == hash 'key_h' and action.released then
-    self.is_enabled = not self.is_enabled
-    gui.set_enabled(self.root_node, self.is_enabled)
-  elseif action_id == hash 'key_p' and action.released then
-    self.is_profiler_enabled = not self.is_profiler_enabled
-    profiler.enable_ui(self.is_profiler_enabled)
-  elseif action_id == hash 'key_l' and action.released then
-    illumination.set_debug(not illumination.is_debug())
+  if self.interaction and action_id == key_interact and action.released then
+    print("Inspected")
+  end
+end
+
+function on_message(self, message_id, message, sender)
+  if message_id == msg_paper then
+    self.interaction = message.enter
+    gui.set_enabled(self.interact_node, self.interaction)
   end
 end
