@@ -19,6 +19,8 @@ end
 --
 -- Lifecycle
 
+local max_battery_life = 99
+
 function init(self)
   urls.eyes = msg.url('eyes')
   urls.operator = msg.url('operator/operator')
@@ -34,6 +36,19 @@ function init(self)
   go.set_parent(urls.flashlight, urls.camera, true)
   
   window.set_listener(handle_window_event)
+
+  self.battery_life = max_battery_life
+  self.max_brightness = 1
+  self.batter_timer = timer.delay(5, true, function()
+    self.battery_life = self.battery_life - 1
+    pigeon.send("flashlight", {battery_life = self.battery_life})
+    self.max_brightness = self.battery_life / max_battery_life
+    go.set(urls.flashlight_script, 'brightness', is_flashlight_on and self.max_brightness or 0)
+  end)
+
+  pigeon.toggle_logging(false)
+
+  sound.play("#haunting")
 end
 
 function on_input(self, action_id, action)
@@ -43,7 +58,18 @@ function on_input(self, action_id, action)
     -- TODO: Interaction handling
   elseif action_id == hash 'key_f' and action.released then
     is_flashlight_on = not is_flashlight_on
-    go.set(urls.flashlight_script, 'brightness', is_flashlight_on and 1 or 0)
+    go.set(urls.flashlight_script, 'brightness', is_flashlight_on and self.max_brightness or 0)
+    pigeon.send("flashlight", {battery_life = self.battery_life})
+    if is_flashlight_on then
+      self.batter_timer = timer.delay(5, true, function()
+        self.battery_life = self.battery_life - 1
+        pigeon.send("flashlight", {battery_life = self.battery_life})
+        self.max_brightness = self.battery_life / max_battery_life
+        go.set(urls.flashlight_script, 'brightness', is_flashlight_on and self.max_brightness or 0)
+      end)
+    elseif self.batter_timer then
+      timer.cancel(self.batter_timer)
+    end
   end
 end
 
@@ -59,7 +85,7 @@ function on_message(self, message_id, message, sender)
       local dist = dist2d(pos.x, pos.z, other_pos.x, other_pos.z)
       pigeon.send("zombie_fov", {distance = dist, enter = message.enter})
     else
-      pigeon.send("paper", {enter = message.enter})
+      pigeon.send("paper", {enter = message.enter, paper_id = message.other_id})
     end
   end
 end

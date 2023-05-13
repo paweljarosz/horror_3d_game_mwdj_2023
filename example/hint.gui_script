@@ -1,32 +1,68 @@
 --local illumination = require 'illumination.illumination'
 local pigeon = require "pigeon.pigeon"
 local msg_paper = hash("paper")
-local key_interact = hash('key_e') 
+local msg_flashlight = hash("flashlight")
+local msg_loudness = hash("loudness")
+local key_interact = hash('key_e')
+local key_ui = hash('key_h')
+local gathered_pages = 0
 
 --
 -- Lifecycle
 
 function init(self)
   msg.post('.', hash 'acquire_input_focus')
-  self.root_node = gui.get_node('box')
+  self.root_node = gui.get_node('root')
   self.interact_node = gui.get_node('interact')
+  self.page_node = gui.get_node('page')
+  self.loudness_node = gui.get_node('loudness')
   self.is_enabled = true
   self.is_profiler_enabled = false
-  pigeon.subscribe(msg_paper)
+  pigeon.subscribe({msg_paper, msg_flashlight, msg_loudness})
 
   self.interaction = false
   gui.set_enabled(self.interact_node, self.interaction)
+  gui.set_enabled(self.page_node, self.interaction)
+  self.ui_visible = true
+
+  self.battery_life = 99
+  self.battery_node = gui.get_node('battery')
+  self.loudness = 0
 end
 
 function on_input(self, action_id, action)
-  if self.interaction and action_id == key_interact and action.released then
-    print("Inspected")
+  if action_id == key_ui and action.released then
+    self.ui_visible = not self.ui_visible
+    gui.set_enabled(self.root_node, self.ui_visible)
+    
+  elseif action_id == key_interact and action.released then
+
+    if self.interaction then
+      gathered_pages = gathered_pages + 1
+      pigeon.send("remove_paper", { paper_id = self.paper_id })
+      gui.set_enabled(self.page_node, self.interaction)
+      self.interaction = false
+      gui.set_text(self.interact_node, "[E] - Hide")
+      sound.play("main:/player/player#paper")
+    else
+      gui.set_enabled(self.page_node, self.interaction)
+      gui.set_enabled(self.interact_node, self.interaction)
+      gui.set_text(self.interact_node, "[E] - Collect")
+    end
+
   end
 end
 
 function on_message(self, message_id, message, sender)
   if message_id == msg_paper then
     self.interaction = message.enter
+    self.paper_id = message.paper_id
     gui.set_enabled(self.interact_node, self.interaction)
+  elseif message_id == msg_flashlight then
+    self.battery_life = message.battery_life
+    gui.set_text(self.battery_node, self.battery_life)
+  elseif (message_id == msg_loudness) and (message.loudness ~= self.loudness) then
+    self.loudness = message.loudness
+    gui.play_flipbook(self.loudness_node, "loudness_"..message.loudness)
   end
 end

@@ -222,7 +222,7 @@ local function delete_light(url)
 
   for url, index in pairs(light_index_by_url) do
     if index > removed_index then
-      light_index_by_url[url] = index - 1    
+      light_index_by_url[url] = index - 1
     end
   end
 

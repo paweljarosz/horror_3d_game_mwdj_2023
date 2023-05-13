@@ -6,8 +6,8 @@ local quad_postprocessing_material = hash("quad")
 
 function init(self)
 	self.constants = render.constant_buffer()
-	self.shadow_pred = render.predicate({"shadow", "model"}) -- all objects that have to cast shadows
-	light_and_shadows.init(self)
+	--self.shadow_pred = render.predicate({"shadow", "model", "quad"}) -- all objects that have to cast shadows
+	--light_and_shadows.init(self)
 
 
 	self.clear_color = vmath.vector4(0,0,0,1)
@@ -51,7 +51,7 @@ function init(self)
 end
 
 function update(self)
-	light_and_shadows.update(self)
+	--light_and_shadows.update(self)
 	--update window dimensions
 	local window_width = render.get_window_width()
 	local window_height = render.get_window_height()
@@ -82,7 +82,7 @@ function update(self)
 		render.disable_material(hash("illumination"))
 	end)
 
-	self.constants.frameBufSize = vmath.vector4(render.get_window_width(), render.get_window_width(), 1.0, 1.0)
+	--self.constants.frameBufSize = vmath.vector4(render.get_window_width(), render.get_window_width(), 1.0, 1.0)
 
 	-- postprocessing
 	helper.draw_to_quad_for_fullscreen_postprocessing(quad_postprocessing_material, function()

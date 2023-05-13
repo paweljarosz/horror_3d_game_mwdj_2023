@@ -1,6 +1,8 @@
 --
 -- Local
 
+local pigeon = require "pigeon.pigeon"
+
 local urls = { }
 
 local daycycle = {
@@ -9,7 +11,7 @@ local daycycle = {
     sunlight_color = vmath.vector3(0.5, 0.5, 0.5),
     sunlight_brightness = 0.5,
     ambient_color = vmath.vector3(0.5, 0.5, 0.5),
-    ambient_level = 0.2,
+    ambient_level = 0.3,
     fog_color = vmath.vector3(0),
     fog_level = 0.3,
     fog_distance_min = 6,
@@ -19,11 +21,11 @@ local daycycle = {
   {
     sunlight_direction = vmath.vector3(-70, 80, 0),
     sunlight_color = vmath.vector3(0.29, 0.28, 0.65),
-    sunlight_brightness = 0.45,
+    sunlight_brightness = 0.3,
     ambient_color = vmath.vector3(0.09, 0.08, 0.15),
-    ambient_level = 0.05,
+    ambient_level = 0.001,
     fog_color = vmath.vector3(0),
-    fog_level = 0.6,
+    fog_level = 0.8,
     fog_distance_min = 10,
     fog_distance_max = 15,
     duration = 0
@@ -59,8 +61,8 @@ papers[1] = 1
 
 local grass_scale = 2
 local grass_space = 4
-local grass_fov = 8--12
-local remove_grass_fov = 20
+local grass_fov = 12--12
+local remove_grass_fov = 16
 
 local tree_density = 26
 local tree_1_probability = 100 - tree_density
@@ -109,6 +111,8 @@ local function remove_far_grass_and_trees(spawned_objects, hero_pos)
   end
 end
 
+local spawned_papers_locations = {}
+
 local function spawn_paper(spawned_objects, grid, pos, paper_delta, rot, number)
   if (papers[number] > 0) and (math.random(0,10) >= 0) then
     pos = pos + paper_delta
@@ -118,6 +122,7 @@ local function spawn_paper(spawned_objects, grid, pos, paper_delta, rot, number)
     {specular = 1, smoothness = 0.5, cutoff = 0.5, color = vmath.vector3(1,0,0)})
     instance_counter = instance_counter + 2
     papers[number] = papers[number] - 1
+    spawned_papers_locations[spawned_objects[grid.x][grid.z].paper] = {x = grid.x, z = grid.z}
   end
 end
 
@@ -136,7 +141,7 @@ local function create_near_grass_and_trees(spawned_objects, hero_pos)
         local random_num = math.random(0,100)
         local random_scale = vmath.vector3(1+(math.random(1,4)/10))
         if random_num > tree_1_probability then
-          spawned_objects[grid.x][grid.z].tree = factory.create("#tree1", pos, _, _, random_scale/1.3)
+          spawned_objects[grid.x][grid.z].tree = factory.create("#tree1", pos, _, _, random_scale/1.2)
           instance_counter = instance_counter + 1
           local paper_delta = vmath.vector3(0.05, 1.24, 0.42)
           local rot = vmath.quat_rotation_x(0.36)
@@ -179,15 +184,44 @@ local objects_to_spawn = {
     prop = {{specular = 1, smoothness = 0.5, cutoff = 0.5, color = vmath.vector3(0,1,0)}}
   }]]
 }
+
+local msg_remove_paper = hash("remove_paper")
  
 --
 -- Lifecycle
+
+local function spawn_first_tree_with_paper(spawned_objects)
+  local pos = vmath.vector3(0,0,0)
+  spawned_objects[0] = {}
+  spawned_objects[0][0] = {}
+
+  -- Create first grass
+  spawned_objects[0][0] = { grass = factory.create("#grass", pos, _, _, grass_scale) }
+  instance_counter = instance_counter + 1
+
+  -- Create first tree
+  spawned_objects[0][0].tree = factory.create("#tree1", pos, _, _, 0.8)
+  instance_counter = instance_counter + 1
+
+  -- Create first paper
+  local paper_delta = vmath.vector3(0.05, 1.24, 0.42)
+  local rot = vmath.quat_rotation_x(0.36)  -- Create first grass
+  pos = pos + paper_delta
+  spawned_objects[0][0].paper = factory.create("#paper"..1, pos, rot, _, vmath.vector3(0.17))
+  spawned_objects[0][0].light = factory.create("#light", pos, _,
+  {specular = 1, smoothness = 0.5, cutoff = 0.5, color = vmath.vector3(1,0,0)})
+  instance_counter = instance_counter + 2
+  papers[1] = papers[1] - 1
+  spawned_papers_locations[spawned_objects[0][0].paper] = {x = 0, z = 0}
+end
 
 function init(self)
   math.randomseed(9)--os.clock()) -3
   self.spawned = {}
   self.spawned_objects = {}
   self.pos = go.get_world_position("main:/player/player")
+
+  spawn_first_tree_with_paper(self.spawned_objects)
 
   recreate_world_around_player(self.spawned_objects)
   timer.delay(0.3, true, function()
@@ -221,4 +255,22 @@ function init(self)
   go.animate(urls.firefly, 'position', go.PLAYBACK_LOOP_PINGPONG, vmath.vector3(-6, 1, -4), go.EASING_INOUTQUAD, 25, 0)]]
 
   --illumination.set_debug(true)
+
+  pigeon.subscribe(msg_remove_paper)
+end
+
+local function remove_paper(object)
+  -- Eventually remove papers
+  if object.paper then
+    go.delete(object.paper)
+    instance_counter = instance_counter - 1
+  end
+end
+
+function on_message(self, message_id, message, sender)
+  if (message_id == msg_remove_paper) and message.paper_id then
+    local grid_pos = spawned_papers_locations[message.paper_id]
+    remove_paper(self.spawned_objects[grid_pos.x][grid_pos.z])
+    spawned_papers_locations[message.paper_id] = nil
+  end
 end

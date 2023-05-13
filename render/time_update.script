@@ -20,7 +20,7 @@ local NOISE_STRENGTH = 0.05
 local DIST_STRENGTH = 0.1
 
 local SCAN_STRENGTH = 0.51
-local CRT_CURVE = 1.6
+local CRT_CURVE = 2.6
 
 local enable_effects1 = vmath.vector4(BLOOM,CHROMATIC,VIGNETTE,NOISE)
 local enable_effects2 = vmath.vector4(VHS,SCANLINES,CRT,TIME)
@@ -52,7 +52,6 @@ function on_message(self, message_id, message, sender)
 			effects2.z = NOISE_STRENGTH
 			effects1.w = CHROMATIC_STRENGTH
 		end
-		print("B", effects2.z)
 		go.set("#quad", "effects2", effects2)
 		go.set("#quad", "effects1", effects1)
 	end
