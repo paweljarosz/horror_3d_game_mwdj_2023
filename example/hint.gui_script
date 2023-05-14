@@ -39,9 +39,11 @@ local function animate_paper_to_player(self)
   self.interaction = false
   gui.set_text(self.interact_node, "[E] - Hide")
   sound.play("main:/player/player#paper")
-  --gui.set_position(self.page_node, vmath.vector3(640,370,0))
-  gui.set_scale(self.page_node, vmath.vector3(0.2))
-  gui.animate(self.page_node, gui.PROP_SCALE, vmath.vector3(0.7), gui.EASING_INSINE, 0.3)
+  gui.set_position(self.page_node, vmath.vector3(640,370,0))
+  gui.animate(self.page_node, gui.PROP_POSITION, vmath.vector3(640,370,0), gui.EASING_INSINE, 0, 0, function()
+    gui.set_scale(self.page_node, vmath.vector3(0.2))
+    gui.animate(self.page_node, gui.PROP_SCALE, vmath.vector3(0.7), gui.EASING_INSINE, 0.3)
+  end)
 end
 
 local function animate_paper_to_inventory(self)
@@ -54,7 +56,8 @@ local function animate_paper_to_inventory(self)
       gui.animate(self.pages_node, gui.PROP_SCALE, vmath.vector3(1), gui.EASING_OUTSINE, 0.2)
     end)
   end)
-  --gui.animate(self.page_node, gui.PROP_POSITION, vmath.vector3(60,680,0), gui.EASING_INSINE, 0.35)
+  gui.set_position(self.page_node, vmath.vector3(640,370,0))
+  gui.animate(self.page_node, gui.PROP_POSITION, vmath.vector3(60,680,0), gui.EASING_INSINE, 0.35)
 end
 
 function on_input(self, action_id, action)

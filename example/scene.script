@@ -21,7 +21,7 @@ local daycycle = {
   {
     sunlight_direction = vmath.vector3(-70, 80, 0),
     sunlight_color = vmath.vector3(0.3, 0.3, 0.9),
-    sunlight_brightness = 0.7,
+    sunlight_brightness = 0.6,
     ambient_color = vmath.vector3(0.2, 0.2, 0.6),
     ambient_level = 0.3,
     fog_color = vmath.vector3(0),
@@ -62,6 +62,7 @@ local tree_1_probability = 100 - tree_density
 local tree_2_probability = 100 - 2 * tree_density
 local tree_3_probability = 100 - 3 * tree_density
 local tree_4_probability = 100 - 4 * tree_density
+--local candle_probability = 100 - 4.5 * tree_density
 
 local function get_normalized_hero_position()
   local hero_pos = go.get_world_position("main:/player/player")
@@ -109,7 +110,7 @@ end
 
 local papers = {}
 papers[1] = {
-  grid = {x = 5, z = 0},
+  grid = {x = 4, z = 0},
   paper_model = "#paper1",
   paper_delta = vmath.vector3(0.05, 1.24, 0.42),
   paper_scale = vmath.vector3(0.18),
@@ -120,7 +121,7 @@ papers[1] = {
   collected = false
 }
 papers[2] = {
-  grid = {x = 0, z = -5},
+  grid = {x = 0, z = -4},
   paper_model = "#paper1",
   paper_delta = vmath.vector3(0.617, 1.14, 0.05),
   paper_scale = vmath.vector3(0.2),
@@ -133,13 +134,26 @@ papers[2] = {
   collected = false
 }
 papers[3] = {
-  grid = {x = 0, z = 0},
+  grid = {x = 0, z = 4},
   paper_model = "#paper1",
   paper_delta = vmath.vector3(0.0, 1.25, 0.24),
   paper_scale = vmath.vector3(0.2),
   paper_rot = vmath.quat_rotation_y(0),
   taken = false,
   model = "#crossstone",
+  model_scale = vmath.vector3(0.12),
+  light_delta = vmath.vector3(0.7, 1.14, 0.3),
+  light_color = vmath.vector3(1,0,0),
+  collected = false
+}
+papers[4] = {
+  grid = {x = 0, z = 0},
+  paper_model = "#paper1",
+  paper_delta = vmath.vector3(0.7, 0.01, 0.6),
+  paper_scale = vmath.vector3(0.25),
+  paper_rot = vmath.quat_rotation_x(-1.57),
+  taken = false,
+  model = "#candle",
   model_scale = vmath.vector3(0.12),
   light_delta = vmath.vector3(0.7, 1.14, 0.3),
   light_color = vmath.vector3(1,0,0),
@@ -204,6 +218,11 @@ local function create_near_grass_and_trees(spawned_objects, hero_pos)
           elseif random_num > tree_4_probability then
             spawned_objects[grid.x][grid.z].tree = factory.create("#tree4", pos, _, _, random_scale)
             instance_counter = instance_counter + 1
+          --[[elseif random_num > candle_probability then
+            spawned_objects[grid.x][grid.z].tree = factory.create("#candle", pos, _, _, random_scale/10)
+            spawned_objects[grid.x][grid.z].light = factory.create("#light", pos, _,
+            {specular = 1, smoothness = 0.5, cutoff = 0.5, color = vmath.vector3(0,0,1)})
+            instance_counter = instance_counter + 2]]
           end
         end
       end
@@ -259,8 +278,8 @@ local function spawn_first_tree_with_paper(spawned_objects)
   local rot = vmath.quat_rotation_x(0.36)  -- Create first grass
   pos = pos + paper_delta
   --spawned_objects[0][0].paper = factory.create("#paper"..1, pos, rot, _, vmath.vector3(0.17))
-  spawned_objects[0][0].light = factory.create("#light", pos, _,
-  {specular = 1, smoothness = 0.5, cutoff = 0.5, color = vmath.vector3(1,0,0)})
+  spawned_objects[2][0].light = factory.create("#light", pos, _,
+  {specular = 1, smoothness = 0.5, cutoff = 0.5, color = vmath.vector3(0,1,0)})
   instance_counter = instance_counter + 1--2
 --  papers[1] = papers[1] - 1
   --spawned_papers_locations[spawned_objects[0][0].paper] = {x = 0, z = 0}
@@ -281,7 +300,6 @@ function init(self)
   timer.delay(0.3, true, function()
     recreate_world_around_player(self.spawned_objects)
   end)
-
 
   self.spawned = {}
   for i,obj in ipairs(objects_to_spawn) do
