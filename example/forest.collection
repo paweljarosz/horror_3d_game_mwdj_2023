@@ -19,6 +19,106 @@ instances {
     z: 1.0
   }
 }
+instances {
+  id: "door"
+  prototype: "/assets/door/door.go"
+  position {
+    x: 18.0
+    y: 0.0
+    z: 0.0
+  }
+  rotation {
+    x: 0.0
+    y: 0.0
+    z: 0.0
+    w: 1.0
+  }
+  scale3 {
+    x: 1.0
+    y: 1.0
+    z: 1.0
+  }
+}
+instances {
+  id: "crossstone"
+  prototype: "/assets/crosstone/crossstone.go"
+  position {
+    x: 3.0
+    y: 0.0
+    z: 0.0
+  }
+  rotation {
+    x: 0.0
+    y: 0.0
+    z: 0.0
+    w: 1.0
+  }
+  scale3 {
+    x: 0.1
+    y: 0.1
+    z: 0.1
+  }
+}
+instances {
+  id: "candle"
+  prototype: "/assets/candle/candle.go"
+  position {
+    x: -1.0
+    y: 0.0
+    z: -14.0
+  }
+  rotation {
+    x: 0.0
+    y: 0.0
+    z: 0.0
+    w: 1.0
+  }
+  scale3 {
+    x: 0.1
+    y: 0.2
+    z: 0.1
+  }
+}
+instances {
+  id: "hand"
+  prototype: "/assets/hand/hand.go"
+  position {
+    x: 31.0
+    y: 1.0
+    z: 0.0
+  }
+  rotation {
+    x: 0.0
+    y: 0.0
+    z: 0.0
+    w: 1.0
+  }
+  scale3 {
+    x: 0.1
+    y: 0.1
+    z: 0.1
+  }
+}
+instances {
+  id: "tombstone"
+  prototype: "/assets/tombstone/tombstone.go"
+  position {
+    x: 0.0
+    y: 0.0
+    z: -10.0
+  }
+  rotation {
+    x: 0.0
+    y: 0.0
+    z: 0.0
+    w: 1.0
+  }
+  scale3 {
+    x: 0.4
+    y: 0.4
+    z: 0.3
+  }
+}
 scale_along_z: 0
 embedded_instances {
   id: "entities"
@@ -43,6 +143,11 @@ embedded_instances {
 }
 embedded_instances {
   id: "world"
+  children: "candle"
+  children: "crossstone"
+  children: "door"
+  children: "hand"
+  children: "tombstone"
   data: "components {\n"
   "  id: \"scene\"\n"
   "  component: \"/example/scene.script\"\n"
@@ -302,6 +407,63 @@ embedded_instances {
   "  id: \"paper1\"\n"
   "  type: \"factory\"\n"
   "  data: \"prototype: \\\"/assets/paper/paper1.go\\\"\\n"
+  "load_dynamically: false\\n"
+  "dynamic_prototype: false\\n"
+  "\"\n"
+  "  position {\n"
+  "    x: 0.0\n"
+  "    y: 0.0\n"
+  "    z: 0.0\n"
+  "  }\n"
+  "  rotation {\n"
+  "    x: 0.0\n"
+  "    y: 0.0\n"
+  "    z: 0.0\n"
+  "    w: 1.0\n"
+  "  }\n"
+  "}\n"
+  "embedded_components {\n"
+  "  id: \"tree4\"\n"
+  "  type: \"factory\"\n"
+  "  data: \"prototype: \\\"/assets/tree_4/tree_4.go\\\"\\n"
+  "load_dynamically: false\\n"
+  "dynamic_prototype: false\\n"
+  "\"\n"
+  "  position {\n"
+  "    x: 0.0\n"
+  "    y: 0.0\n"
+  "    z: 0.0\n"
+  "  }\n"
+  "  rotation {\n"
+  "    x: 0.0\n"
+  "    y: 0.0\n"
+  "    z: 0.0\n"
+  "    w: 1.0\n"
+  "  }\n"
+  "}\n"
+  "embedded_components {\n"
+  "  id: \"tombstone\"\n"
+  "  type: \"factory\"\n"
+  "  data: \"prototype: \\\"/assets/tombstone/tombstone.go\\\"\\n"
+  "load_dynamically: false\\n"
+  "dynamic_prototype: false\\n"
+  "\"\n"
+  "  position {\n"
+  "    x: 0.0\n"
+  "    y: 0.0\n"
+  "    z: 0.0\n"
+  "  }\n"
+  "  rotation {\n"
+  "    x: 0.0\n"
+  "    y: 0.0\n"
+  "    z: 0.0\n"
+  "    w: 1.0\n"
+  "  }\n"
+  "}\n"
+  "embedded_components {\n"
+  "  id: \"crossstone\"\n"
+  "  type: \"factory\"\n"
+  "  data: \"prototype: \\\"/assets/crosstone/crossstone.go\\\"\\n"
   "load_dynamically: false\\n"
   "dynamic_prototype: false\\n"
   "\"\n"

@@ -300,7 +300,7 @@ nodes {
   "[F]       Flashlight\n"
   "[H]       Hide UI"
   font: "system_font"
-  id: "text_1"
+  id: "hint"
   xanchor: XANCHOR_NONE
   yanchor: YANCHOR_NONE
   pivot: PIVOT_SW

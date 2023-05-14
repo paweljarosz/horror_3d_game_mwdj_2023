@@ -1,6 +1,6 @@
 components {
   id: "model"
-  component: "/assets/tree_2/tree_2.model"
+  component: "/assets/tree_4/tree_4.model"
   position {
     x: 0.0
     y: 0.0
@@ -27,7 +27,7 @@ embedded_components {
   "  shapes {\n"
   "    shape_type: TYPE_BOX\n"
   "    position {\n"
-  "      x: 0.0\n"
+  "      x: -0.05\n"
   "      y: 2.0\n"
   "      z: 0.0\n"
   "    }\n"
@@ -40,9 +40,9 @@ embedded_components {
   "    index: 0\n"
   "    count: 3\n"
   "  }\n"
-  "  data: 0.5\n"
+  "  data: 0.25\n"
   "  data: 2.5\n"
-  "  data: 0.5\n"
+  "  data: 0.25\n"
   "}\n"
   "linear_damping: 0.0\n"
   "angular_damping: 0.0\n"

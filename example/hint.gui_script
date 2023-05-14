@@ -16,6 +16,7 @@ function init(self)
   self.interact_node = gui.get_node('interact')
   self.page_node = gui.get_node('page')
   self.loudness_node = gui.get_node('loudness')
+  self.pages_node = gui.get_node('pages')
   self.is_enabled = true
   self.is_profiler_enabled = false
   pigeon.subscribe({msg_paper, msg_flashlight, msg_loudness})
@@ -28,26 +29,48 @@ function init(self)
   self.battery_life = 99
   self.battery_node = gui.get_node('battery')
   self.loudness = 0
+
+  self.papers_to_collect = 8
+  gui.set_text(self.pages_node, self.papers_to_collect)
+end
+
+local function animate_paper_to_player(self)
+  gui.set_enabled(self.page_node, self.interaction)
+  self.interaction = false
+  gui.set_text(self.interact_node, "[E] - Hide")
+  sound.play("main:/player/player#paper")
+  --gui.set_position(self.page_node, vmath.vector3(640,370,0))
+  gui.set_scale(self.page_node, vmath.vector3(0.2))
+  gui.animate(self.page_node, gui.PROP_SCALE, vmath.vector3(0.7), gui.EASING_INSINE, 0.3)
+end
+
+local function animate_paper_to_inventory(self)
+  gui.set_enabled(self.interact_node, self.interaction)
+  gui.set_text(self.interact_node, "[E] - Collect")
+  gui.animate(self.page_node, gui.PROP_SCALE, vmath.vector3(0), gui.EASING_INSINE, 0.4, 0, function()
+    gui.set_enabled(self.page_node, self.interaction)
+    gui.animate(self.pages_node, gui.PROP_SCALE, vmath.vector3(1.3), gui.EASING_INSINE, 0.2, 0, function()
+      gui.set_text(self.pages_node, self.papers_to_collect)
+      gui.animate(self.pages_node, gui.PROP_SCALE, vmath.vector3(1), gui.EASING_OUTSINE, 0.2)
+    end)
+  end)
+  --gui.animate(self.page_node, gui.PROP_POSITION, vmath.vector3(60,680,0), gui.EASING_INSINE, 0.35)
 end
 
 function on_input(self, action_id, action)
   if action_id == key_ui and action.released then
     self.ui_visible = not self.ui_visible
     gui.set_enabled(self.root_node, self.ui_visible)
-    
+
   elseif action_id == key_interact and action.released then
 
     if self.interaction then
       gathered_pages = gathered_pages + 1
       pigeon.send("remove_paper", { paper_id = self.paper_id })
-      gui.set_enabled(self.page_node, self.interaction)
-      self.interaction = false
-      gui.set_text(self.interact_node, "[E] - Hide")
-      sound.play("main:/player/player#paper")
+      animate_paper_to_player(self)
     else
-      gui.set_enabled(self.page_node, self.interaction)
-      gui.set_enabled(self.interact_node, self.interaction)
-      gui.set_text(self.interact_node, "[E] - Collect")
+      self.papers_to_collect = self.papers_to_collect - 1
+      animate_paper_to_inventory(self)
     end
 
   end
