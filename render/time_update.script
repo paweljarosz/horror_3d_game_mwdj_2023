@@ -1,3 +1,4 @@
+local pigeon = require "pigeon.pigeon"
 
 local BLOOM = 0
 local CHROMATIC = 1
@@ -34,6 +35,9 @@ local msg_zombie_pov = hash("zombie_fov")
 local noise_power_ratio = 1.03
 local chrom_power_ratio = 1.07
 
+go.property("noise_scaring", 0.05)
+go.property("chrome_scaring", 0.08)
+
 function init(self)
 	go.set("#quad", "enable_effects1", enable_effects1)
 	go.set("#quad", "enable_effects2", enable_effects2)
@@ -43,21 +47,41 @@ function init(self)
 	pigeon.subscribe(msg_zombie_pov)
 end
 
+local function cease_effects(self)
+	self.noise_scaring = 0.05
+	self.chrome_scaring = 0.08
+	effects2.z = self.noise_scaring
+	effects1.w = self.chrome_scaring
+	go.set("#quad", "effects2", effects2)
+	go.set("#quad", "effects1", effects1)
+end
+
 function on_message(self, message_id, message, sender)
 	if message_id == msg_zombie_pov then
 		if message.enter then
-			effects1.w = chrom_power_ratio / message.distance
-			effects2.z = noise_power_ratio / message.distance
+			go.animate("#", "noise_scaring", go.PLAYBACK_ONCE_FORWARD, 1.2, go.EASING_LINEAR, 7.1, 0, function()
+				cease_effects(self)
+				pigeon.send("zombie_change_pos")
+				sound.play("#attack", {delay = 0.8})
+			end)
+			go.animate("#", "chrome_scaring", go.PLAYBACK_ONCE_FORWARD, 1.8, go.EASING_LINEAR, 7.05)
+			sound.play("#rising_tension")
 		else
-			effects2.z = NOISE_STRENGTH
-			effects1.w = CHROMATIC_STRENGTH
+			go.cancel_animations("#", "noise_scaring")
+			go.cancel_animations("#", "chrome_scaring")
+			cease_effects(self)
+			sound.stop("#rising_tension")
 		end
-		go.set("#quad", "effects2", effects2)
-		go.set("#quad", "effects1", effects1)
 	end
 end
 
 function update(self, dt)
 	enable_effects2.w = enable_effects2.w + dt
+	if self.noise_scaring > 0.06 then
+		effects2.z = self.noise_scaring
+		effects1.w = self.chrome_scaring
+		go.set("#quad", "effects2", effects2)
+		go.set("#quad", "effects1", effects1)
+	end
 	go.set("#quad", "enable_effects2", enable_effects2)
 end

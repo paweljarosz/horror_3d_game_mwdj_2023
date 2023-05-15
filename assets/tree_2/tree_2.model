@@ -1,5 +1,5 @@
 mesh: "/assets/tree_2/tree_2_lod_2.glb"
-material: "/illumination/materials/model.material"
+material: "/illumination/assets/materials/debug.material"
 textures: "/assets/tree_2/bark_2_color.png"
 textures: "/illumination/textures/data.png"
 textures: "/illumination/textures/empty.png"

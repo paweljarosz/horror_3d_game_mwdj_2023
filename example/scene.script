@@ -55,7 +55,7 @@ end
 local grass_scale = 2
 local grass_space = 4
 local grass_fov = 12
-local remove_grass_fov = 16
+local remove_grass_fov = 17
 
 local tree_density = 15
 local tree_1_probability = 100 - tree_density
@@ -123,7 +123,7 @@ papers[1] = {
 papers[2] = {
   grid = {x = 0, z = -4},
   paper_model = "#paper1",
-  paper_delta = vmath.vector3(0.617, 1.14, 0.05),
+  paper_delta = vmath.vector3(0.617, 1.9, 0.05),
   paper_scale = vmath.vector3(0.2),
   paper_rot = vmath.quat_rotation_y(1.57),
   taken = false,
@@ -147,7 +147,7 @@ papers[3] = {
   collected = false
 }
 papers[4] = {
-  grid = {x = 0, z = 0},
+  grid = {x = 4, z = 0},
   paper_model = "#paper1",
   paper_delta = vmath.vector3(0.7, 0.01, 0.6),
   paper_scale = vmath.vector3(0.25),
@@ -155,6 +155,32 @@ papers[4] = {
   taken = false,
   model = "#candle",
   model_scale = vmath.vector3(0.12),
+  light_delta = vmath.vector3(0.7, 1.14, 0.3),
+  light_color = vmath.vector3(1,0,0),
+  collected = false
+}
+papers[5] = {
+  grid = {x = 12, z = 0},
+  paper_model = "#paper1",
+  paper_delta = vmath.vector3(-0.05, 0.01, -0.1),
+  paper_scale = vmath.vector3(0.25),
+  paper_rot = vmath.quat_rotation_x(-1.57),
+  taken = false,
+  model = "#hand",
+  model_scale = vmath.vector3(0.12),
+  light_delta = vmath.vector3(0.7, 1.14, 0.3),
+  light_color = vmath.vector3(1,0,0),
+  collected = false
+}
+papers[6] = {
+  grid = {x = 0, z = 0},
+  paper_model = "#paper1",
+  paper_delta = vmath.vector3(-0.15, 2, -0.33),
+  paper_scale = vmath.vector3(0.25),
+  paper_rot = vmath.quat_rotation_y(3.7),
+  taken = false,
+  model = "#tree2",
+  model_scale = vmath.vector3(0.14),
   light_delta = vmath.vector3(0.7, 1.14, 0.3),
   light_color = vmath.vector3(1,0,0),
   collected = false
@@ -255,58 +281,54 @@ local objects_to_spawn = {
   }]]
 }
 
+
+local spawned_zombie = false
+local max_spawns = 5
+local times_spawned = 0
+
+local function spawn_zombie(spawned_objects)
+  local hero_pos = get_normalized_hero_position()
+  times_spawned = times_spawned + 1
+  local range_min = 5+(max_spawns-times_spawned)
+  local range_max = 7+(max_spawns-times_spawned)
+  local grid_x = hero_pos.x + math.random(range_min, range_max)
+  local grid_z = hero_pos.z + math.random(range_min, range_max)
+  local pos = vmath.vector3(grid_x+0.5, 0, grid_z+0.5)
+  if not spawned_zombie then
+    spawned_zombie = {}
+    print("Zombie at", grid_x, grid_z, spawned_objects[grid_x])
+    spawned_zombie.id = factory.create("#zombie", pos, _, _, vmath.vector3(0.4))
+    spawned_zombie.x = grid_x
+    spawned_zombie.z = grid_z
+    --spawned_zombie_location = {id = spawned_objects[grid_x][grid_z].tree, x = grid_x, z = grid_z}
+  else
+    print("Not at", grid_x, grid_z)
+    spawn_zombie(spawned_objects)
+  end
+end
+
 local msg_remove_paper = hash("remove_paper")
+local msg_brightness = hash("adjust_brightness")
+local msg_zombie_pov = hash("zombie_fov")
+local msg_zombie_change_pos = hash("zombie_change_pos")
  
 --
 -- Lifecycle
 
-local function spawn_first_tree_with_paper(spawned_objects)
-  local pos = vmath.vector3(0,0,0)
-  spawned_objects[0] = {}
-  spawned_objects[0][0] = {}
-
-  -- Create first grass
-  --spawned_objects[0][0] = { grass = factory.create("#grass", pos, _, _, grass_scale) }
-  --instance_counter = instance_counter + 1
-
-  -- Create first tree
-  --spawned_objects[0][0].tree = factory.create("#tree1", pos, _, _, 0.8)
-  --instance_counter = instance_counter + 1
-
-  -- Create first paper
-  local paper_delta = vmath.vector3(0.05, 1.24, 0.42)
-  local rot = vmath.quat_rotation_x(0.36)  -- Create first grass
-  pos = pos + paper_delta
-  --spawned_objects[0][0].paper = factory.create("#paper"..1, pos, rot, _, vmath.vector3(0.17))
-  spawned_objects[2][0].light = factory.create("#light", pos, _,
-  {specular = 1, smoothness = 0.5, cutoff = 0.5, color = vmath.vector3(0,1,0)})
-  instance_counter = instance_counter + 1--2
---  papers[1] = papers[1] - 1
-  --spawned_papers_locations[spawned_objects[0][0].paper] = {x = 0, z = 0}
-end
 
 function init(self)
   math.randomseed(9)--os.clock()) -3
-  self.spawned = {}
   self.spawned_objects = {}
   self.pos = go.get_world_position("main:/player/player")
 
-  --spawn_first_tree_with_paper(self.spawned_objects)
-
-  --local hero_pos = get_normalized_hero_position()
-  --spawn_near_papers_with_object_and_grass(self.spawned_objects, hero_pos)
 
   recreate_world_around_player(self.spawned_objects)
   timer.delay(0.3, true, function()
     recreate_world_around_player(self.spawned_objects)
   end)
 
-  self.spawned = {}
-  for i,obj in ipairs(objects_to_spawn) do
-    for j,pos in ipairs(obj.pos) do
-      self.spawned[i] = factory.create(obj.factory, pos, obj.rot[j], obj.prop and obj.prop[j], obj.scale[j])
-    end
-  end
+  spawn_zombie(self.spawned_objects)
+
   urls = {
     illumination_go = msg.url('illumination'),
     illumination = msg.url('illumination#illumination'),
@@ -328,7 +350,7 @@ function init(self)
 
   --illumination.set_debug(true)
 
-  pigeon.subscribe(msg_remove_paper)
+  pigeon.subscribe({msg_remove_paper, msg_brightness, msg_zombie_pov, msg_zombie_change_pos})
 end
 
 local function remove_paper(object)
@@ -339,11 +361,46 @@ local function remove_paper(object)
   end
 end
 
+local function clamp(x, min, max)
+  if x > max then x = max
+  elseif x < min then x = min
+  end
+  return x
+end
+
+local function angle_of_vector_between_two_points(x1,y1, x2,y2)
+  return math.atan2(y2-y1, x2-x1)
+end
+
 function on_message(self, message_id, message, sender)
   if (message_id == msg_remove_paper) and message.paper_id then
     local paper = spawned_papers_locations[message.paper_id]
     remove_paper(self.spawned_objects[paper.x][paper.z])
     papers[paper.papers_index].collected = true
     spawned_papers_locations[message.paper_id] = nil
+  elseif (message_id == msg_brightness) then
+    daycycle[2].sunlight_brightness = daycycle[2].sunlight_brightness + message.delta
+    daycycle[2].ambient_level = daycycle[2].ambient_level + message.delta
+    daycycle[2].sunlight_brightness = clamp(daycycle[2].sunlight_brightness, 0.3, 1)
+    daycycle[2].ambient_level = clamp(daycycle[2].ambient_level, 0.00, 0.7)
+    run_daycycle(self, 2)
+  elseif (message_id == msg_zombie_pov) then
+    if message.enter and spawned_zombie then
+      go.get_world_position(spawned_zombie.id)
+      local v1 = vmath.vector3(1, 0, 0)
+      local zombie_pos = go.get_world_position(spawned_zombie.id)
+      local hero_pos = go.get_world_position("main:/player/player")
+      local v2 = vmath.vector3(zombie_pos.x - hero_pos.x, 0, zombie_pos.z - hero_pos.z)
+      v2 = vmath.normalize(v2)
+      local angle = angle_of_vector_between_two_points(0, 0, v2.x, v2.z)
+      local rot = vmath.quat_from_to(v1, v2)
+      local rot2 = vmath.quat_rotation_y(angle)
+      pprint("Z", zombie_pos, hero_pos, rot, angle, rot2)
+      go.set(spawned_zombie.id, "rotation", rot2)--vmath.quat_rotation_y(1))
+    end
+  elseif (message_id == msg_zombie_change_pos) and spawned_zombie then
+    go.delete(spawned_zombie.id)
+    spawned_zombie = false
+    spawn_zombie(self.spawned_objects)
   end
 end

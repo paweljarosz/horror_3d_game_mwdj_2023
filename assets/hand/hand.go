@@ -3,14 +3,14 @@ components {
   component: "/assets/hand/hand.model"
   position {
     x: 0.0
-    y: 4.0
+    y: 0.0
     z: 0.0
   }
   rotation {
     x: 0.0
     y: 0.0
-    z: 0.70710677
-    w: 0.70710677
+    z: 1.0
+    w: 6.123234E-17
   }
 }
 embedded_components {

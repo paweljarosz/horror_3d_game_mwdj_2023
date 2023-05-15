@@ -1,9 +1,9 @@
 [library]
-include_dirs = illumination
+include_dirs = 
 
 [project]
 title = Horror_Game_MWDJ_2023
-version = 0.1
+version = 0.2
 developer = Pawel Jarosz
 dependencies#0 = https://github.com/indiesoftby/defold-pointer-lock/archive/1b5e05b94491bb7e041052990122dd846e1605a9.zip
 dependencies#1 = https://github.com/astrochili/defold-operator/archive/refs/tags/1.3.zip
@@ -17,9 +17,14 @@ render = /render/horror.renderc
 
 [input]
 game_binding = /builtins/input/all.input_bindingc
+use_accelerometer = 0
 
 [physics]
 type = 3D
+max_collision_object_count = 256
+max_collisions = 32
+max_contacts = 64
+ray_cast_limit_2d = 0
 
 [html5]
 scale_mode = stretch
@@ -27,7 +32,7 @@ show_made_with_defold = 0
 show_fullscreen_button = 0
 
 [display]
-high_dpi = 1
+high_dpi = 0
 fullscreen = 0
 width = 1280
 height = 720
@@ -43,7 +48,20 @@ max_count = 128
 
 [model]
 max_count = 1024
+split_meshes = 1
 
 [mesh]
 max_count = 1024
+
+[gui]
+max_count = 4
+max_particlefx_count = 0
+max_particle_count = 0
+
+[collectionfactory]
+max_count = 32
+
+[tilemap]
+max_count = 0
+max_tile_count = 0
 
