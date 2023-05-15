@@ -80,25 +80,25 @@ local function remove_far_grass_and_trees(spawned_objects, hero_pos)
     for obj_z, objects in pairs(z_column) do
       if dist2d(hero_pos.x, hero_pos.z, obj_x, obj_z) > remove_grass_fov then
         -- Eventually remove far grass
-        if objects.grass then
+        if objects.grass and go.exists(objects.grass) then
           go.delete(objects.grass)
           instance_counter = instance_counter - 1
         end
 
         -- Eventually remove trees
-        if objects.tree then
+        if objects.tree and go.exists(objects.tree) then
           go.delete(objects.tree)
           instance_counter = instance_counter - 1
         end
 
         -- Eventually remove papers
-        if objects.paper then
+        if objects.paper and go.exists(objects.paper) then
           go.delete(objects.paper)
           instance_counter = instance_counter - 1
         end
 
         -- Eventually remove lights
-        if objects.light then
+        if objects.light and go.exists(objects.light) then
           go.delete(objects.light)
           instance_counter = instance_counter - 1
         end
@@ -135,8 +135,9 @@ papers[2] = {
   light_color = vmath.vector3(1,0,0),
   collected = false
 }
+
 papers[3] = {
-  grid = {x = 32, z = 0},
+  grid = {x = 32, z = 0},  
   paper_model = "#paper3",
   paper_delta = vmath.vector3(0.05, 1.24, 0.42),
   paper_scale = vmath.vector3(0.18),
@@ -146,22 +147,10 @@ papers[3] = {
   model_scale = vmath.vector3(1),
   collected = false
 }
+
 papers[4] = {
-  grid = {x = 0, z = -20},
-  paper_model = "#paper1",
-  paper_delta = vmath.vector3(0.617, 1.9, 0.05),
-  paper_scale = vmath.vector3(0.2),
-  paper_rot = vmath.quat_rotation_y(1.57),
-  taken = false,
-  model = "#tombstone",
-  model_scale = vmath.vector3(0.4),
-  light_delta = vmath.vector3(0.7, 1.14, 0.3),
-  light_color = vmath.vector3(1,0,0),
-  collected = false
-}
-papers[5] = {
   grid = {x = 24, z = 16},
-  paper_model = "#paper1",
+  paper_model = "#paper4",
   paper_delta = vmath.vector3(0.7, 0.01, 0.6),
   paper_scale = vmath.vector3(0.25),
   paper_rot = vmath.quat_rotation_x(-1.57),
@@ -172,9 +161,11 @@ papers[5] = {
   light_color = vmath.vector3(1,0,0),
   collected = false
 }
-papers[6] = {
-  grid = {x = 12, z = -16},
-  paper_model = "#paper1",
+
+
+papers[5] = {
+  grid = {x = -24, z = 0},
+  paper_model = "#paper5",
   paper_delta = vmath.vector3(-0.05, 0.01, -0.1),
   paper_scale = vmath.vector3(0.25),
   paper_rot = vmath.quat_rotation_x(-1.57),
@@ -185,6 +176,21 @@ papers[6] = {
   light_color = vmath.vector3(1,0,0),
   collected = false
 }
+
+papers[6] = {
+  grid = {x = 0, z = -20},
+  paper_model = "#paper6",
+  paper_delta = vmath.vector3(0.617, 1.9, 0.05),
+  paper_scale = vmath.vector3(0.2),
+  paper_rot = vmath.quat_rotation_y(1.57),
+  taken = false,
+  model = "#tombstone",
+  model_scale = vmath.vector3(0.4),
+  light_delta = vmath.vector3(0.7, 1.14, 0.3),
+  light_color = vmath.vector3(1,0,0),
+  collected = false
+}
+
 papers[7] = {
   grid = {x = -24, z = 24},
   paper_model = "#paper1",
@@ -206,92 +212,94 @@ local function create_near_grass_and_trees(spawned_objects, hero_pos)
     for z = -grass_fov, grass_fov, grass_space do
       local grid = vmath.vector3(hero_pos.x + x, 0, hero_pos.z + z)
       local pos = vmath.vector3(hero_pos.x + x, 0, hero_pos.z + z)
-      if not spawned_objects[grid.x] then
-        spawned_objects[grid.x] = {}
-      end
-      if not spawned_objects[grid.x][grid.z] then
-        -- Create near grass
-        spawned_objects[grid.x][grid.z] = spawned_objects[grid.x][grid.z] or {}
+      if (grid.x < 53) and (grid.x > -53) and (grid.z < 53) and (grid.z > -53) then
+        if not spawned_objects[grid.x] then
+          spawned_objects[grid.x] = {}
+        end
+        if not spawned_objects[grid.x][grid.z] then
+          -- Create near grass
+          spawned_objects[grid.x][grid.z] = spawned_objects[grid.x][grid.z] or {}
 
-        for i,v in pairs(papers) do
-          if v.grid.x == grid.x and v.grid.z == grid.z
-          and grid.x < 53 and grid.x > -53 and grid.y < 53 and grid.y < -53 then
-            if not spawned_objects[grid.x][grid.z].grass then
-              spawned_objects[grid.x][grid.z].grass = factory.create("#grass", pos, _, _, grass_scale)
-              instance_counter = instance_counter + 1
-            end
-            if not spawned_objects[grid.x][grid.z].tree then
-              spawned_objects[grid.x][grid.z].tree = factory.create(v.model, pos, _, _, v.model_scale)
-              instance_counter = instance_counter + 1
-            end
-            if (not v.collected) and (not spawned_objects[grid.x][grid.z].paper) then
-              spawned_objects[grid.x][grid.z].paper = factory.create(v.paper_model, pos + v.paper_delta, v.paper_rot, _, v.paper_scale)
-              instance_counter = instance_counter + 1
-              spawned_papers_locations[spawned_objects[grid.x][grid.z].paper] = {x = grid.x, z = grid.z, papers_index = i}
-            end
-            if v.light_delta and (not spawned_objects[grid.x][grid.z].light) then
-              spawned_objects[grid.x][grid.z].light = factory.create("#light", pos + v.light_delta, _,
-              {specular = 1, smoothness = 0.5, cutoff = 0.5, color = v.light_color})
-              instance_counter = instance_counter + 1
+          -- Spawn papers
+          for i,v in pairs(papers) do
+            if v.grid.x == grid.x and v.grid.z == grid.z then
+              if not spawned_objects[grid.x][grid.z].grass then
+                spawned_objects[grid.x][grid.z].grass = factory.create("#grass", pos, _, _, grass_scale)
+                instance_counter = instance_counter + 1
+              end
+              if not spawned_objects[grid.x][grid.z].tree then
+                spawned_objects[grid.x][grid.z].tree = factory.create(v.model, pos, _, _, v.model_scale)
+                instance_counter = instance_counter + 1
+              end
+              if (not v.collected) and (not spawned_objects[grid.x][grid.z].paper) then
+                spawned_objects[grid.x][grid.z].paper = factory.create(v.paper_model, pos + v.paper_delta, v.paper_rot, _, v.paper_scale)
+                instance_counter = instance_counter + 1
+                spawned_papers_locations[spawned_objects[grid.x][grid.z].paper] = {x = grid.x, z = grid.z, papers_index = i}
+              end
+              if v.light_delta and (not spawned_objects[grid.x][grid.z].light) then
+                spawned_objects[grid.x][grid.z].light = factory.create("#light", pos + v.light_delta, _,
+                {specular = 1, smoothness = 0.5, cutoff = 0.5, color = v.light_color})
+                instance_counter = instance_counter + 1
+              end
             end
           end
-        end
 
-        if not spawned_objects[grid.x][grid.z].grass then
-          spawned_objects[grid.x][grid.z].grass = factory.create("#grass", pos, _, _, grass_scale)
-          instance_counter = instance_counter + 1
-        end
-
-        -- Walls
-        -- North
-        if grid.z == -52 then
-          local rot = vmath.quat_rotation_y(0)
-          spawned_objects[grid.x][grid.z].tree = factory.create("#wall", pos, rot, _, grass_scale)
-          instance_counter = instance_counter + 1
-        end
-
-        --South
-        if grid.z == 52 then
-          local rot = vmath.quat_rotation_y(3.14)
-          spawned_objects[grid.x][grid.z].tree = factory.create("#wall", pos, rot, _, grass_scale)
-          instance_counter = instance_counter + 1
-        end
-
-        --West
-        if grid.x == 52 then
-          local rot = vmath.quat_rotation_y(-1.57)
-          spawned_objects[grid.x][grid.z].tree = factory.create("#wall", pos, rot, _, grass_scale)
-          instance_counter = instance_counter + 1
-        end
-
-        --East
-        if grid.x == -52 then
-          local rot = vmath.quat_rotation_y(1.57)
-          spawned_objects[grid.x][grid.z].tree = factory.create("#wall", pos, rot, _, grass_scale)
-          instance_counter = instance_counter + 1
-        end
-
-        -- Create near trees
-        if not spawned_objects[grid.x][grid.z].tree then
-          local random_num = math.random(0,100)
-          local random_scale = vmath.vector3(1+(math.random(1,4)/10))
-          if random_num > tree_1_probability then
-            spawned_objects[grid.x][grid.z].tree = factory.create("#tree1", pos, _, _, random_scale/1.2)
+          if not spawned_objects[grid.x][grid.z].grass then
+            spawned_objects[grid.x][grid.z].grass = factory.create("#grass", pos, _, _, grass_scale)
             instance_counter = instance_counter + 1
-          elseif random_num > tree_2_probability then
-            spawned_objects[grid.x][grid.z].tree = factory.create("#tree2", pos, _, _, random_scale/11)
+          end
+
+          -- Walls
+          -- North
+          if grid.z == -52 then
+            local rot = vmath.quat_rotation_y(0)
+            spawned_objects[grid.x][grid.z].tree = factory.create("#wall", pos, rot, _, grass_scale)
             instance_counter = instance_counter + 1
-          elseif random_num > tree_3_probability then
-            spawned_objects[grid.x][grid.z].tree = factory.create("#tree3", pos, _, _, random_scale/3)
+          end
+
+          --South
+          if grid.z == 52 then
+            local rot = vmath.quat_rotation_y(3.14)
+            spawned_objects[grid.x][grid.z].tree = factory.create("#wall", pos, rot, _, grass_scale)
             instance_counter = instance_counter + 1
-          elseif random_num > tree_4_probability then
-            spawned_objects[grid.x][grid.z].tree = factory.create("#tree4", pos, _, _, random_scale)
+          end
+
+          --West
+          if grid.x == 52 then
+            local rot = vmath.quat_rotation_y(-1.57)
+            spawned_objects[grid.x][grid.z].tree = factory.create("#wall", pos, rot, _, grass_scale)
             instance_counter = instance_counter + 1
-          --[[elseif random_num > candle_probability then
-            spawned_objects[grid.x][grid.z].tree = factory.create("#candle", pos, _, _, random_scale/10)
-            spawned_objects[grid.x][grid.z].light = factory.create("#light", pos, _,
-            {specular = 1, smoothness = 0.5, cutoff = 0.5, color = vmath.vector3(0,0,1)})
-            instance_counter = instance_counter + 2]]
+          end
+
+          --East
+          if grid.x == -52 then
+            local rot = vmath.quat_rotation_y(1.57)
+            spawned_objects[grid.x][grid.z].tree = factory.create("#wall", pos, rot, _, grass_scale)
+            instance_counter = instance_counter + 1
+          end
+
+          -- Create near trees
+          if not spawned_objects[grid.x][grid.z].tree then
+            local random_num = math.random(0,100)
+            local random_scale = vmath.vector3(1+(math.random(1,4)/10))
+            if random_num > tree_1_probability then
+              spawned_objects[grid.x][grid.z].tree = factory.create("#tree1", pos, _, _, random_scale/1.2)
+              instance_counter = instance_counter + 1
+            elseif random_num > tree_2_probability then
+              spawned_objects[grid.x][grid.z].tree = factory.create("#tree2", pos, _, _, random_scale/11)
+              instance_counter = instance_counter + 1
+            elseif random_num > tree_3_probability then
+              spawned_objects[grid.x][grid.z].tree = factory.create("#tree3", pos, _, _, random_scale/3)
+              instance_counter = instance_counter + 1
+            elseif random_num > tree_4_probability then
+              spawned_objects[grid.x][grid.z].tree = factory.create("#tree4", pos, _, _, random_scale)
+              instance_counter = instance_counter + 1
+            --[[elseif random_num > candle_probability then
+              spawned_objects[grid.x][grid.z].tree = factory.create("#candle", pos, _, _, random_scale/10)
+              spawned_objects[grid.x][grid.z].light = factory.create("#light", pos, _,
+              {specular = 1, smoothness = 0.5, cutoff = 0.5, color = vmath.vector3(0,0,1)})
+              instance_counter = instance_counter + 2]]
+            end
           end
         end
       end
@@ -329,13 +337,24 @@ local spawned_zombie = false
 local max_spawns = 5
 local times_spawned = 0
 
-local function spawn_zombie(spawned_objects)
+local function clamp(x, min, max)
+  if x > max then x = max
+  elseif x < min then x = min
+  end
+  return x
+end
+
+local function spawn_zombie(spawned_objects, did_scared)
   local hero_pos = get_normalized_hero_position()
   times_spawned = times_spawned + 1
+  if did_scared then times_spawned = max_spawns end
   local range_min = 5+(max_spawns-times_spawned)
   local range_max = 7+(max_spawns-times_spawned)
   local grid_x = hero_pos.x + math.random(range_min, range_max)
   local grid_z = hero_pos.z + math.random(range_min, range_max)
+  grid_x = clamp(grid_x, -48, 48)
+  grid_z = clamp(grid_z, -48, 48)
+  local pos = vmath.vector3(grid_x+0.5, 0, grid_z+0.5)
   local pos = vmath.vector3(grid_x+0.5, 0, grid_z+0.5)
   if not spawned_zombie then
     spawned_zombie = {}
@@ -358,12 +377,13 @@ local msg_zombie_change_pos = hash("zombie_change_pos")
 --
 -- Lifecycle
 
-
-function init(self)
-  math.randomseed(9)--os.clock()) -3
+local function respawn_world(self)
+  for i,v in pairs(papers) do
+    v.collected = false
+  end
+  math.randomseed(9)--os.clock()) --3
   self.spawned_objects = {}
   self.pos = go.get_world_position("main:/player/player")
-
 
   recreate_world_around_player(self.spawned_objects)
   timer.delay(0.3, true, function()
@@ -371,6 +391,13 @@ function init(self)
   end)
 
   spawn_zombie(self.spawned_objects)
+
+  pigeon.send("respawn")
+end
+
+
+function init(self)
+  respawn_world(self)
 
   urls = {
     illumination_go = msg.url('illumination'),
@@ -384,15 +411,6 @@ function init(self)
 
   run_daycycle(self, 2)
 
---[[  go.animate(urls.spot_red, 'euler.y', go.PLAYBACK_LOOP_FORWARD, 360, go.EASING_LINEAR, 10, 0)
-  go.animate(urls.spot_red, 'euler.z', go.PLAYBACK_LOOP_PINGPONG, -50, go.EASING_INOUTQUAD, 5, 0)
-  go.animate(urls.spot_green, 'euler.y', go.PLAYBACK_LOOP_FORWARD, 360, go.EASING_LINEAR, 12, 0)
-  go.animate(urls.spot_green, 'euler.z', go.PLAYBACK_LOOP_PINGPONG, -50, go.EASING_INOUTQUAD, 5, 0)
-  go.animate(urls.fireplace, 'brightness', go.PLAYBACK_LOOP_PINGPONG, 0.8, go.EASING_INOUTQUAD, 1, 0)
-  go.animate(urls.firefly, 'position', go.PLAYBACK_LOOP_PINGPONG, vmath.vector3(-6, 1, -4), go.EASING_INOUTQUAD, 25, 0)]]
-
-  --illumination.set_debug(true)
-
   pigeon.subscribe({msg_remove_paper, msg_brightness, msg_zombie_pov, msg_zombie_change_pos})
 end
 
@@ -404,16 +422,11 @@ local function remove_paper(object)
   end
 end
 
-local function clamp(x, min, max)
-  if x > max then x = max
-  elseif x < min then x = min
-  end
-  return x
-end
-
 local function angle_of_vector_between_two_points(x1,y1, x2,y2)
   return math.atan2(y2-y1, x2-x1)
 end
+
+local zombie_spawned_times = 0
 
 function on_message(self, message_id, message, sender)
   if (message_id == msg_remove_paper) and message.paper_id then
@@ -421,6 +434,7 @@ function on_message(self, message_id, message, sender)
     remove_paper(self.spawned_objects[paper.x][paper.z])
     papers[paper.papers_index].collected = true
     spawned_papers_locations[message.paper_id] = nil
+    pigeon.send("paper_no", {paper_no = paper.papers_index})
   elseif (message_id == msg_brightness) then
     daycycle[2].sunlight_brightness = daycycle[2].sunlight_brightness + message.delta
     daycycle[2].ambient_level = daycycle[2].ambient_level + message.delta
@@ -436,14 +450,19 @@ function on_message(self, message_id, message, sender)
       local v2 = vmath.vector3(zombie_pos.x - hero_pos.x, 0, zombie_pos.z - hero_pos.z)
       v2 = vmath.normalize(v2)
       local angle = angle_of_vector_between_two_points(0, 0, v2.x, v2.z)
-      local rot = vmath.quat_from_to(v1, v2)
+      --local rot = vmath.quat_from_to(v1, v2)
       local rot2 = vmath.quat_rotation_y(-angle + 1.57)
-      pprint("Z", zombie_pos, hero_pos, rot, angle, rot2)
-      go.set(spawned_zombie.id, "rotation", rot2)--vmath.quat_rotation_y(1))
+      go.set(spawned_zombie.id, "rotation", rot2)
+      zombie_spawned_times = zombie_spawned_times + 1
+      if zombie_spawned_times > 0 then
+        zombie_spawned_times = 0
+
+        respawn_world(self)
+      end
     end
   elseif (message_id == msg_zombie_change_pos) and spawned_zombie then
     go.delete(spawned_zombie.id)
     spawned_zombie = false
-    spawn_zombie(self.spawned_objects)
+    spawn_zombie(self.spawned_objects, message.scared)
   end
 end

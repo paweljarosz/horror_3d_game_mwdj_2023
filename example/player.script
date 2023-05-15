@@ -20,6 +20,7 @@ end
 -- Lifecycle
 
 local max_battery_life = 99
+local msg_respawn = hash("respawn")
 
 function init(self)
   urls.eyes = msg.url('eyes')
@@ -34,13 +35,16 @@ function init(self)
   msg.post(urls.walker, hash 'follow_camera', { camera = urls.operator })
 
   go.set_parent(urls.flashlight, urls.camera, true)
-  
+
   window.set_listener(handle_window_event)
 
   self.battery_life = max_battery_life
   self.max_brightness = 1
   self.batter_timer = timer.delay(5, true, function()
     self.battery_life = self.battery_life - 1
+    if self.battery_life <= 0 then
+      self.battery_life = 0
+    end
     pigeon.send("flashlight", {battery_life = self.battery_life})
     self.max_brightness = self.battery_life / max_battery_life
     go.set(urls.flashlight_script, 'brightness', is_flashlight_on and self.max_brightness or 0)
@@ -49,14 +53,16 @@ function init(self)
   pigeon.toggle_logging(false)
 
   sound.play("#haunting")
+
+  pigeon.subscribe(msg_respawn)
 end
 
 function on_input(self, action_id, action)
-  if action_id == hash 'key_e' and action.released then
+  --if action_id == hash 'key_e' and action.released then
     --spectator_mode = not spectator_mode
     --msg.post(urls.walker, hash 'spectator_mode', { is_enabled = spectator_mode } )
     -- TODO: Interaction handling
-  elseif action_id == hash 'key_f' and action.released then
+  if action_id == hash 'key_f' and action.released then
     is_flashlight_on = not is_flashlight_on
     go.set(urls.flashlight_script, 'brightness', is_flashlight_on and self.max_brightness or 0)
     pigeon.send("flashlight", {battery_life = self.battery_life})
@@ -87,5 +93,7 @@ function on_message(self, message_id, message, sender)
     else
       pigeon.send("paper", {enter = message.enter, paper_id = message.other_id})
     end
+  elseif message_id == msg_respawn then
+    self.battery_life = max_battery_life
   end
 end

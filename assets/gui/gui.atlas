@@ -1,5 +1,5 @@
 images {
-  image: "/assets/paper/paper1.png"
+  image: "/assets/paper/paper_1.png"
   sprite_trim_mode: SPRITE_TRIM_MODE_OFF
 }
 images {
@@ -36,6 +36,26 @@ images {
 }
 images {
   image: "/assets/gui/n_arrow.png"
+  sprite_trim_mode: SPRITE_TRIM_MODE_OFF
+}
+images {
+  image: "/assets/paper/paper_2.png"
+  sprite_trim_mode: SPRITE_TRIM_MODE_OFF
+}
+images {
+  image: "/assets/paper/paper_3.png"
+  sprite_trim_mode: SPRITE_TRIM_MODE_OFF
+}
+images {
+  image: "/assets/paper/paper_4.png"
+  sprite_trim_mode: SPRITE_TRIM_MODE_OFF
+}
+images {
+  image: "/assets/paper/paper_5.png"
+  sprite_trim_mode: SPRITE_TRIM_MODE_OFF
+}
+images {
+  image: "/assets/paper/paper_6.png"
   sprite_trim_mode: SPRITE_TRIM_MODE_OFF
 }
 margin: 0

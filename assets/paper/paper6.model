@@ -1,6 +1,6 @@
 mesh: "/builtins/assets/meshes/quad.dae"
 material: "/illumination/materials/model.material"
-textures: "/assets/paper/paper_1.png"
+textures: "/assets/paper/paper_6.png"
 textures: "/illumination/textures/data.png"
 textures: "/illumination/textures/empty.png"
 textures: "/assets/paper/paper_normal.png"

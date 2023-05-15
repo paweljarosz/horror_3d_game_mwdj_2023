@@ -61,7 +61,7 @@ function on_message(self, message_id, message, sender)
 		if message.enter then
 			go.animate("#", "noise_scaring", go.PLAYBACK_ONCE_FORWARD, 1.2, go.EASING_LINEAR, 7.1, 0, function()
 				cease_effects(self)
-				pigeon.send("zombie_change_pos")
+				pigeon.send("zombie_change_pos", {scared = true})
 				sound.play("#attack", {delay = 0.8})
 			end)
 			go.animate("#", "chrome_scaring", go.PLAYBACK_ONCE_FORWARD, 1.8, go.EASING_LINEAR, 7.05)
@@ -71,6 +71,7 @@ function on_message(self, message_id, message, sender)
 			go.cancel_animations("#", "chrome_scaring")
 			cease_effects(self)
 			sound.stop("#rising_tension")
+			pigeon.send("zombie_change_pos", {scared = false})
 		end
 	end
 end

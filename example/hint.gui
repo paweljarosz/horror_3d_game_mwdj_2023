@@ -796,7 +796,7 @@ nodes {
   }
   type: TYPE_BOX
   blend_mode: BLEND_MODE_ALPHA
-  texture: "pages/paper1"
+  texture: "pages/paper_1"
   id: "page"
   xanchor: XANCHOR_NONE
   yanchor: YANCHOR_NONE
