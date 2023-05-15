@@ -110,31 +110,7 @@ end
 
 local papers = {}
 papers[1] = {
-  grid = {x = 4, z = 0},
-  paper_model = "#paper1",
-  paper_delta = vmath.vector3(0.05, 1.24, 0.42),
-  paper_scale = vmath.vector3(0.18),
-  paper_rot = vmath.quat_rotation_x(0.36),
-  taken = false,
-  model = "#tree1",
-  model_scale = vmath.vector3(1),
-  collected = false
-}
-papers[2] = {
-  grid = {x = 0, z = -4},
-  paper_model = "#paper1",
-  paper_delta = vmath.vector3(0.617, 1.9, 0.05),
-  paper_scale = vmath.vector3(0.2),
-  paper_rot = vmath.quat_rotation_y(1.57),
-  taken = false,
-  model = "#tombstone",
-  model_scale = vmath.vector3(0.4),
-  light_delta = vmath.vector3(0.7, 1.14, 0.3),
-  light_color = vmath.vector3(1,0,0),
-  collected = false
-}
-papers[3] = {
-  grid = {x = 0, z = 4},
+  grid = {x = 0, z = 0},
   paper_model = "#paper1",
   paper_delta = vmath.vector3(0.0, 1.25, 0.24),
   paper_scale = vmath.vector3(0.2),
@@ -146,8 +122,45 @@ papers[3] = {
   light_color = vmath.vector3(1,0,0),
   collected = false
 }
+papers[2] = {
+  grid = {x = -16, z = 8},
+  paper_model = "#paper2",
+  paper_delta = vmath.vector3(-0.15, 1.5, -0.33),
+  paper_scale = vmath.vector3(0.25),
+  paper_rot = vmath.quat_rotation_y(3.7),
+  taken = false,
+  model = "#tree2",
+  model_scale = vmath.vector3(0.14),
+  light_delta = vmath.vector3(0.7, 1.14, 0.3),
+  light_color = vmath.vector3(1,0,0),
+  collected = false
+}
+papers[3] = {
+  grid = {x = 32, z = 0},
+  paper_model = "#paper3",
+  paper_delta = vmath.vector3(0.05, 1.24, 0.42),
+  paper_scale = vmath.vector3(0.18),
+  paper_rot = vmath.quat_rotation_x(0.36),
+  taken = false,
+  model = "#tree1",
+  model_scale = vmath.vector3(1),
+  collected = false
+}
 papers[4] = {
-  grid = {x = 4, z = 0},
+  grid = {x = 0, z = -20},
+  paper_model = "#paper1",
+  paper_delta = vmath.vector3(0.617, 1.9, 0.05),
+  paper_scale = vmath.vector3(0.2),
+  paper_rot = vmath.quat_rotation_y(1.57),
+  taken = false,
+  model = "#tombstone",
+  model_scale = vmath.vector3(0.4),
+  light_delta = vmath.vector3(0.7, 1.14, 0.3),
+  light_color = vmath.vector3(1,0,0),
+  collected = false
+}
+papers[5] = {
+  grid = {x = 24, z = 16},
   paper_model = "#paper1",
   paper_delta = vmath.vector3(0.7, 0.01, 0.6),
   paper_scale = vmath.vector3(0.25),
@@ -159,8 +172,8 @@ papers[4] = {
   light_color = vmath.vector3(1,0,0),
   collected = false
 }
-papers[5] = {
-  grid = {x = 12, z = 0},
+papers[6] = {
+  grid = {x = 12, z = -16},
   paper_model = "#paper1",
   paper_delta = vmath.vector3(-0.05, 0.01, -0.1),
   paper_scale = vmath.vector3(0.25),
@@ -172,15 +185,15 @@ papers[5] = {
   light_color = vmath.vector3(1,0,0),
   collected = false
 }
-papers[6] = {
-  grid = {x = 0, z = 0},
+papers[7] = {
+  grid = {x = -24, z = 24},
   paper_model = "#paper1",
-  paper_delta = vmath.vector3(-0.15, 2, -0.33),
-  paper_scale = vmath.vector3(0.25),
-  paper_rot = vmath.quat_rotation_y(3.7),
+  paper_delta = vmath.vector3(-0.61, 0.7, 0.0),
+  paper_scale = vmath.vector3(0.23),
+  paper_rot = vmath.quat_rotation_y(-1.57),
   taken = false,
-  model = "#tree2",
-  model_scale = vmath.vector3(0.14),
+  model = "#door",
+  model_scale = vmath.vector3(1.0),
   light_delta = vmath.vector3(0.7, 1.14, 0.3),
   light_color = vmath.vector3(1,0,0),
   collected = false
@@ -201,7 +214,8 @@ local function create_near_grass_and_trees(spawned_objects, hero_pos)
         spawned_objects[grid.x][grid.z] = spawned_objects[grid.x][grid.z] or {}
 
         for i,v in pairs(papers) do
-          if v.grid.x == grid.x and v.grid.z == grid.z then
+          if v.grid.x == grid.x and v.grid.z == grid.z
+          and grid.x < 53 and grid.x > -53 and grid.y < 53 and grid.y < -53 then
             if not spawned_objects[grid.x][grid.z].grass then
               spawned_objects[grid.x][grid.z].grass = factory.create("#grass", pos, _, _, grass_scale)
               instance_counter = instance_counter + 1
@@ -225,6 +239,35 @@ local function create_near_grass_and_trees(spawned_objects, hero_pos)
 
         if not spawned_objects[grid.x][grid.z].grass then
           spawned_objects[grid.x][grid.z].grass = factory.create("#grass", pos, _, _, grass_scale)
+          instance_counter = instance_counter + 1
+        end
+
+        -- Walls
+        -- North
+        if grid.z == -52 then
+          local rot = vmath.quat_rotation_y(0)
+          spawned_objects[grid.x][grid.z].tree = factory.create("#wall", pos, rot, _, grass_scale)
+          instance_counter = instance_counter + 1
+        end
+
+        --South
+        if grid.z == 52 then
+          local rot = vmath.quat_rotation_y(3.14)
+          spawned_objects[grid.x][grid.z].tree = factory.create("#wall", pos, rot, _, grass_scale)
+          instance_counter = instance_counter + 1
+        end
+
+        --West
+        if grid.x == 52 then
+          local rot = vmath.quat_rotation_y(-1.57)
+          spawned_objects[grid.x][grid.z].tree = factory.create("#wall", pos, rot, _, grass_scale)
+          instance_counter = instance_counter + 1
+        end
+
+        --East
+        if grid.x == -52 then
+          local rot = vmath.quat_rotation_y(1.57)
+          spawned_objects[grid.x][grid.z].tree = factory.create("#wall", pos, rot, _, grass_scale)
           instance_counter = instance_counter + 1
         end
 
@@ -394,7 +437,7 @@ function on_message(self, message_id, message, sender)
       v2 = vmath.normalize(v2)
       local angle = angle_of_vector_between_two_points(0, 0, v2.x, v2.z)
       local rot = vmath.quat_from_to(v1, v2)
-      local rot2 = vmath.quat_rotation_y(angle)
+      local rot2 = vmath.quat_rotation_y(-angle + 1.57)
       pprint("Z", zombie_pos, hero_pos, rot, angle, rot2)
       go.set(spawned_zombie.id, "rotation", rot2)--vmath.quat_rotation_y(1))
     end
