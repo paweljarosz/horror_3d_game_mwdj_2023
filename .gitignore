@@ -13,9 +13,6 @@ log.txt
 /.vscode
 
 # Operator
-/walker
-
-# Operator
 /operator
 
 # TrenchBroom
