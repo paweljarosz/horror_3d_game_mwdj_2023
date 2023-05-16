@@ -48,22 +48,24 @@ function init(self)
 	self.bias_matrix.c1 = vmath.vector4(0.0, 0.5, 0.0, 0.0)
 	self.bias_matrix.c2 = vmath.vector4(0.0, 0.0, 0.5, 0.0)
 	self.bias_matrix.c3 = vmath.vector4(0.5, 0.5, 0.5, 1.0)]]
+
+	self.window_width = 0
+	self.window_height = 0
 end
 
 function update(self)
-	--light_and_shadows.update(self)
 	--update window dimensions
 	local window_width = render.get_window_width()
 	local window_height = render.get_window_height()
 
 	-- recreate render targets (in case of window change)
-	self.all_rt = helper.create_render_target("all")
-	--self.light_rt = helper.create_depth_buffer(2048,2048)
-
-	--[[helper.draw_shadows(self.light_rt, self.light_projection, self.light_transform, function()
-		render.draw(self.sky_pred)
-		render.draw(self.scene.predicate)
-	end)]]
+	if (window_width ~= self.window_width)
+	or (window_height ~= self.window_height) then
+		self.window_width = window_width
+		self.window_height = window_height
+		render.delete_render_target(self.all_rt)
+		self.all_rt = helper.create_render_target("all")
+	end
 
 	-- scene
 	helper.draw_to_render_target(self.all_rt, function()
@@ -81,8 +83,6 @@ function update(self)
 
 		render.disable_material(hash("illumination"))
 	end)
-
-	--self.constants.frameBufSize = vmath.vector4(render.get_window_width(), render.get_window_width(), 1.0, 1.0)
 
 	-- postprocessing
 	helper.draw_to_quad_for_fullscreen_postprocessing(quad_postprocessing_material, function()

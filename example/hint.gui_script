@@ -54,8 +54,6 @@ function init(self)
   self.battery_life = 99
   self.papers_to_collect = 6
   gui.set_text(self.pages_node, self.papers_to_collect)
-
-  --timer.delay(1, true, function() pigeon.send("scaring", {}) end)
 end
 
 local function animate_paper_to_player(self)

@@ -484,7 +484,7 @@ function did_init(self)
 end
 
 function update(self, dt)
-  --[[if self.pause ~= nil then
+  if self.pause ~= nil then
     if self.pause == false then
       self.pause = nil
     end
@@ -742,7 +742,7 @@ function update(self, dt)
   self.position_correction = vectors.zero
   self.squizzing = nil 
   self.is_stucked_between_slopes = false
-  self.is_standing_available = true]]
+  self.is_standing_available = true
 end
 
 local footstep_gate_open = true
@@ -772,10 +772,10 @@ function on_input(self, action_id, action)
       local gain = self.input.shift and 2 or (self.is_crouching and 0.3 or 0.8)
       local time = self.input.shift and 0.3 or (self.is_crouching and 0.5 or 0.4)
       sound.play("#footstep_"..footstep_no, {gain = gain})
-      --[[timer.delay(time, false, function()
+      timer.delay(time, false, function()
         footstep_gate_open = true
         pigeon.send("loudness", {loudness = 0})
-      end)]]
+      end)
       footstep_gate_open = false
       pigeon.send("loudness", {loudness = self.input.shift and 3 or (self.is_crouching and 1 or 2)})
     end
