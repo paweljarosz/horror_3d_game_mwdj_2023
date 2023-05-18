@@ -1,5 +1,5 @@
 mesh: "/builtins/assets/meshes/quad.dae"
-material: "/illumination/materials/model.material"
+material: "/illumination/assets/materials/debug.material"
 textures: "/assets/paper/paper_5.png"
 textures: "/illumination/textures/data.png"
 textures: "/illumination/textures/empty.png"

@@ -54,8 +54,8 @@ end
 
 local grass_scale = 2
 local grass_space = 4
-local grass_fov = 12
-local remove_grass_fov = 17
+local grass_fov = 16
+local remove_grass_fov = 20
 
 local tree_density = 15
 local tree_1_probability = 100 - tree_density
@@ -122,23 +122,10 @@ papers[1] = {
   light_color = vmath.vector3(1,0,0),
   collected = false
 }
-papers[2] = {
-  grid = {x = -16, z = 8},
-  paper_model = "#paper2",
-  paper_delta = vmath.vector3(-0.15, 1.5, -0.33),
-  paper_scale = vmath.vector3(0.25),
-  paper_rot = vmath.quat_rotation_y(3.7),
-  taken = false,
-  model = "#tree2",
-  model_scale = vmath.vector3(0.14),
-  light_delta = vmath.vector3(0.7, 1.14, 0.3),
-  light_color = vmath.vector3(1,0,0),
-  collected = false
-}
 
-papers[3] = {
-  grid = {x = 32, z = 0},  
-  paper_model = "#paper3",
+papers[2] = {
+  grid = {x = 32, z = 0},
+  paper_model = "#paper2",
   paper_delta = vmath.vector3(0.05, 1.24, 0.42),
   paper_scale = vmath.vector3(0.18),
   paper_rot = vmath.quat_rotation_x(0.36),
@@ -148,9 +135,9 @@ papers[3] = {
   collected = false
 }
 
-papers[4] = {
-  grid = {x = 24, z = 16},
-  paper_model = "#paper4",
+papers[3] = {
+  grid = {x = 0, z = -16},
+  paper_model = "#paper3",
   paper_delta = vmath.vector3(0.7, 0.01, 0.6),
   paper_scale = vmath.vector3(0.25),
   paper_rot = vmath.quat_rotation_x(-1.57),
@@ -163,9 +150,9 @@ papers[4] = {
 }
 
 
-papers[5] = {
+papers[4] = {
   grid = {x = -24, z = 0},
-  paper_model = "#paper5",
+  paper_model = "#paper4",
   paper_delta = vmath.vector3(-0.05, 0.01, -0.1),
   paper_scale = vmath.vector3(0.25),
   paper_rot = vmath.quat_rotation_x(-1.57),
@@ -177,9 +164,9 @@ papers[5] = {
   collected = false
 }
 
-papers[6] = {
-  grid = {x = 0, z = -20},
-  paper_model = "#paper6",
+papers[5] = {
+  grid = {x = 0, z = 20},
+  paper_model = "#paper5",
   paper_delta = vmath.vector3(0.617, 1.9, 0.05),
   paper_scale = vmath.vector3(0.2),
   paper_rot = vmath.quat_rotation_y(1.57),
@@ -191,9 +178,9 @@ papers[6] = {
   collected = false
 }
 
-papers[7] = {
+papers[6] = {
   grid = {x = -24, z = 24},
-  paper_model = "#paper1",
+  paper_model = "#paper6",
   paper_delta = vmath.vector3(-0.61, 0.7, 0.0),
   paper_scale = vmath.vector3(0.23),
   paper_rot = vmath.quat_rotation_y(-1.57),
@@ -294,11 +281,6 @@ local function create_near_grass_and_trees(spawned_objects, hero_pos)
             elseif random_num > tree_4_probability then
               spawned_objects[grid.x][grid.z].tree = factory.create("#tree4", pos, _, _, random_scale)
               instance_counter = instance_counter + 1
-            --[[elseif random_num > candle_probability then
-              spawned_objects[grid.x][grid.z].tree = factory.create("#candle", pos, _, _, random_scale/10)
-              spawned_objects[grid.x][grid.z].light = factory.create("#light", pos, _,
-              {specular = 1, smoothness = 0.5, cutoff = 0.5, color = vmath.vector3(0,0,1)})
-              instance_counter = instance_counter + 2]]
             end
           end
         end
@@ -316,25 +298,8 @@ local function recreate_world_around_player(spawned_objects)
   create_near_grass_and_trees(spawned_objects, hero_pos)
 end
 
-local objects_to_spawn = {
-  {
-    factory = "#zombie",
-    pos = {vmath.vector3(-6,0,0)},
-    rot = {vmath.quat_rotation_y(-30)},
-    scale = {vmath.vector3(0.4)}
-  }--[[,
-  {
-    factory = "#zombie_light",
-    pos = {vmath.vector3(0,0,0)},
-    rot = {vmath.quat_rotation_y(0)},
-    scale = {vmath.vector3(1)},
-    prop = {{specular = 1, smoothness = 0.5, cutoff = 0.5, color = vmath.vector3(0,1,0)}}
-  }]]
-}
-
-
 local spawned_zombie = false
-local max_spawns = 5
+local max_spawns = 10
 local times_spawned = 0
 
 local function clamp(x, min, max)
@@ -348,13 +313,14 @@ local function spawn_zombie(spawned_objects, did_scared)
   local hero_pos = get_normalized_hero_position()
   times_spawned = times_spawned + 1
   if did_scared then times_spawned = max_spawns end
+  local sign_x = math.random(0,1) == 0 and -1 or 1
+  local sign_y = math.random(0,1) == 0 and -1 or 1
   local range_min = 5+(max_spawns-times_spawned)
-  local range_max = 7+(max_spawns-times_spawned)
-  local grid_x = hero_pos.x + math.random(range_min, range_max)
-  local grid_z = hero_pos.z + math.random(range_min, range_max)
+  local range_max = 10+(max_spawns-times_spawned)
+  local grid_x = hero_pos.x + sign_x * math.random(range_min, range_max)
+  local grid_z = hero_pos.z + sign_y * math.random(range_min, range_max)
   grid_x = clamp(grid_x, -48, 48)
   grid_z = clamp(grid_z, -48, 48)
-  local pos = vmath.vector3(grid_x+0.5, 0, grid_z+0.5)
   local pos = vmath.vector3(grid_x+0.5, 0, grid_z+0.5)
   if not spawned_zombie then
     spawned_zombie = {}
@@ -362,10 +328,6 @@ local function spawn_zombie(spawned_objects, did_scared)
     spawned_zombie.id = factory.create("#zombie", pos, _, _, vmath.vector3(0.4))
     spawned_zombie.x = grid_x
     spawned_zombie.z = grid_z
-    --spawned_zombie_location = {id = spawned_objects[grid_x][grid_z].tree, x = grid_x, z = grid_z}
-  else
-    print("Not at", grid_x, grid_z)
-    spawn_zombie(spawned_objects)
   end
 end
 
@@ -381,22 +343,36 @@ local function respawn_world(self)
   for i,v in pairs(papers) do
     v.collected = false
   end
-  math.randomseed(9)--os.clock()) --3
   self.spawned_objects = {}
+  go.set_position(vmath.vector3(0,0,3), "main:/player/player")
+  go.set_rotation(vmath.quat_rotation_y(0), "main:/player/player")
   self.pos = go.get_world_position("main:/player/player")
 
+  if self.recreation_timer then timer.cancel(self.recreation_timer) end
+  if self.zombie_spawn_timer then timer.cancel(self.zombie_spawn_timer) end
+
   recreate_world_around_player(self.spawned_objects)
-  timer.delay(0.3, true, function()
+  self.recreation_timer = timer.delay(0.2, true, function()
     recreate_world_around_player(self.spawned_objects)
   end)
 
   spawn_zombie(self.spawned_objects)
+
+  self.zombie_spawn_timer = timer.delay(12, true, function()
+    pigeon.send("zombie_change_pos")
+  end)
 
   pigeon.send("respawn")
 end
 
 
 function init(self)
+  print("I", socket.gettime()*10000)
+  math.randomseed(socket.gettime()*10000) --3
+  math.random()
+  math.random()
+  math.random()
+
   respawn_world(self)
 
   urls = {
@@ -444,7 +420,6 @@ function on_message(self, message_id, message, sender)
   elseif (message_id == msg_zombie_pov) then
     if message.enter and spawned_zombie then
       go.get_world_position(spawned_zombie.id)
-      local v1 = vmath.vector3(1, 0, 0)
       local zombie_pos = go.get_world_position(spawned_zombie.id)
       local hero_pos = go.get_world_position("main:/player/player")
       local v2 = vmath.vector3(zombie_pos.x - hero_pos.x, 0, zombie_pos.z - hero_pos.z)
@@ -454,15 +429,17 @@ function on_message(self, message_id, message, sender)
       local rot2 = vmath.quat_rotation_y(-angle + 1.57)
       go.set(spawned_zombie.id, "rotation", rot2)
       zombie_spawned_times = zombie_spawned_times + 1
-      if zombie_spawned_times > 0 then
+      if zombie_spawned_times > 10 then
         zombie_spawned_times = 0
-
         respawn_world(self)
       end
     end
-  elseif (message_id == msg_zombie_change_pos) and spawned_zombie then
-    go.delete(spawned_zombie.id)
-    spawned_zombie = false
+  elseif (message_id == msg_zombie_change_pos) then
+    print("Change_pos")
+    if spawned_zombie.id then
+      go.delete(spawned_zombie.id)
+      spawned_zombie = false
+    end
     spawn_zombie(self.spawned_objects, message.scared)
   end
 end

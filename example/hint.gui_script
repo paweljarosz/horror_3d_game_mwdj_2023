@@ -94,6 +94,10 @@ function on_input(self, action_id, action)
       pigeon.send("remove_paper", { paper_id = self.paper_id })
     else
       self.papers_to_collect = self.papers_to_collect - 1
+      if self.papers_to_collect <= 0 then
+        self.papers_to_collect = 6
+        pigeon.send("respawn")
+      end
       animate_paper_to_inventory(self)
     end
 
